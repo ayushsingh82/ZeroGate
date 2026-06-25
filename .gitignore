@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Build artifacts
+circuits/build/*.ptau
+circuits/build/*.zkey
+circuits/build/*.r1cs
+circuits/build/*.sym
+circuits/build/*_js/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Rust
+target/
+Cargo.lock
+
+# Memory (internal Claude Code memory — not part of project)
+memory/
