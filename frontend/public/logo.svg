@@ -1,0 +1,40 @@
+<svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="FlowPay">
+  <defs>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-soft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="28" result="blur"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="320" height="320" rx="60" fill="#080808"/>
+
+  <!-- Subtle border -->
+  <rect x="2.5" y="2.5" width="315" height="315" rx="57.5" fill="none" stroke="#CFFF03" stroke-opacity="0.2" stroke-width="2"/>
+
+  <!-- Deep ambient glow behind the mark -->
+  <path
+    d="M 160 160 C 150 100 35 100 35 160 C 35 220 150 220 160 160 C 170 100 285 100 285 160 C 285 220 170 220 160 160 Z"
+    fill="none" stroke="#CFFF03" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"
+    stroke-opacity="0.12" filter="url(#glow-soft)"
+  />
+
+  <!-- Mid glow -->
+  <path
+    d="M 160 160 C 150 100 35 100 35 160 C 35 220 150 220 160 160 C 170 100 285 100 285 160 C 285 220 170 220 160 160 Z"
+    fill="none" stroke="#CFFF03" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"
+    stroke-opacity="0.2" filter="url(#glow)"
+  />
+
+  <!-- Main crisp infinity mark -->
+  <path
+    d="M 160 160 C 150 100 35 100 35 160 C 35 220 150 220 160 160 C 170 100 285 100 285 160 C 285 220 170 220 160 160 Z"
+    fill="none" stroke="#CFFF03" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+  />
+</svg>
