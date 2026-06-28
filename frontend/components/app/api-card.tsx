@@ -4,6 +4,49 @@ import { useState } from "react";
 import { CheckCircle, Loader2, ShieldCheck, ArrowRight } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
 
+function ApiIcon({ id }: { id: string }) {
+  if (id === "weather") {
+    return (
+      <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="11" r="5" stroke="#CFFF03" strokeWidth="1.5"/>
+        <path d="M16 4V2M16 20v-2M9 11H7M25 11h-2M11.1 6.1l-1.4-1.4M22.3 17.3l-1.4-1.4M11.1 15.9l-1.4 1.4M22.3 4.7l-1.4 1.4" stroke="#CFFF03" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M8 22a5 5 0 0 1 10 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-muted-foreground"/>
+        <path d="M6 26h20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-muted-foreground"/>
+        <path d="M10 29h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.5" className="text-muted-foreground"/>
+      </svg>
+    );
+  }
+  if (id === "price-feed") {
+    return (
+      <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="4,24 10,16 15,20 21,10 28,14" stroke="#CFFF03" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="28" cy="14" r="2" fill="#CFFF03"/>
+        <line x1="4" y1="28" x2="28" y2="28" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.3" className="text-muted-foreground"/>
+        <line x1="4" y1="4" x2="4" y2="28" stroke="currentColor" strokeWidth="1.2" strokeOpacity="0.3" className="text-muted-foreground"/>
+      </svg>
+    );
+  }
+  if (id === "ai-analysis") {
+    return (
+      <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="10" width="20" height="14" rx="3" stroke="#CFFF03" strokeWidth="1.5"/>
+        <circle cx="11" cy="17" r="2" fill="#CFFF03"/>
+        <circle cx="21" cy="17" r="2" fill="#CFFF03"/>
+        <path d="M14 17h4" stroke="#CFFF03" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M11 10V7M21 10V7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="text-muted-foreground"/>
+        <path d="M8 24l2 3M24 24l-2 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="text-muted-foreground"/>
+        <path d="M16 6a2 2 0 0 1 0-4 2 2 0 0 1 0 4z" stroke="currentColor" strokeWidth="1.2" className="text-muted-foreground"/>
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="20" height="20" rx="4" stroke="currentColor" strokeWidth="1.5" className="text-muted-foreground"/>
+      <path d="M16 11v10M11 16h10" stroke="#CFFF03" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 interface Api {
   id: string;
   name: string;
@@ -45,7 +88,7 @@ export function ApiCard({ api, isSubscribed, isConnected, onSubscribe, onProve }
     }`}>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="text-2xl">{api.icon}</span>
+          <ApiIcon id={api.id} />
           <div>
             <h3 className="text-sm font-semibold text-[var(--foreground)]">{api.name}</h3>
             <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--muted-foreground)]">

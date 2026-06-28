@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShieldCheck, History, Zap, ExternalLink } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, History, ExternalLink } from "lucide-react";
 import { WalletConnect } from "./wallet-connect";
 
 const NAV = [
@@ -18,11 +18,21 @@ export function AppSidebar() {
     <aside className="w-60 flex-shrink-0 border-r border-[var(--border)] flex flex-col h-full bg-[var(--card)]">
       <div className="p-5 border-b border-[var(--border)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-[var(--foreground)] flex items-center justify-center">
-            <Zap className="w-4 h-4 text-[var(--background)]" />
-          </div>
+          <svg viewBox="0 0 64 64" className="w-7 h-7 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="13" fill="#0a0a0a"/>
+            <rect x="1" y="1" width="62" height="62" rx="12" fill="none" stroke="#CFFF03" strokeOpacity="0.15" strokeWidth="1"/>
+            <path d="M32 9 L53 18 L53 35 C53 47 32 55 32 55 C32 55 11 47 11 35 L11 18 Z" fill="none" stroke="#CFFF03" strokeWidth="2" strokeLinejoin="round"/>
+            <circle cx="21" cy="32" r="3" fill="#CFFF03"/>
+            <circle cx="32" cy="25" r="2.5" fill="#CFFF03"/>
+            <circle cx="43" cy="32" r="3" fill="#CFFF03"/>
+            <circle cx="32" cy="41" r="2" fill="#0a0a0a" stroke="#CFFF03" strokeWidth="1.5"/>
+            <line x1="21" y1="32" x2="32" y2="25" stroke="#CFFF03" strokeWidth="1.5" strokeOpacity="0.9"/>
+            <line x1="32" y1="25" x2="43" y2="32" stroke="#CFFF03" strokeWidth="1.5" strokeOpacity="0.9"/>
+            <line x1="21" y1="32" x2="32" y2="41" stroke="#CFFF03" strokeWidth="1.5" strokeOpacity="0.6"/>
+            <line x1="43" y1="32" x2="32" y2="41" stroke="#CFFF03" strokeWidth="1.5" strokeOpacity="0.6"/>
+          </svg>
           <div>
-            <p className="text-sm font-semibold text-[var(--foreground)] leading-none">Stealth402</p>
+            <p className="text-sm font-semibold text-[var(--foreground)] leading-none">Stealth<span style={{color:"#CFFF03"}}>402</span></p>
             <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Private API Subscriptions</p>
           </div>
         </div>

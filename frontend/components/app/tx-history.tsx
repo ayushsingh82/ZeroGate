@@ -70,11 +70,43 @@ const BASE_TXS = [
   },
 ];
 
-const ICONS: Record<string, string> = {
-  weather: "🌦",
-  "price-feed": "📈",
-  "ai-analysis": "🤖",
-};
+function TxIcon({ apiId }: { apiId: string }) {
+  if (apiId === "weather") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="8" r="3.5" stroke="#CFFF03" strokeWidth="1.4"/>
+        <path d="M12 2V1M12 15v-1M5 8H4M20 8h-1M7 4l-.7-.7M17.7 14.7l-.7-.7M7 12l-.7.7M17.7 3.3l-.7.7" stroke="#CFFF03" strokeWidth="1.3" strokeLinecap="round"/>
+        <path d="M6 17a4 4 0 0 1 12 0" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="text-muted-foreground"/>
+        <line x1="4" y1="20" x2="20" y2="20" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="text-muted-foreground"/>
+      </svg>
+    );
+  }
+  if (apiId === "price-feed") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="3,18 8,12 12,15 17,7 21,10" stroke="#CFFF03" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="21" cy="10" r="1.5" fill="#CFFF03"/>
+      </svg>
+    );
+  }
+  if (apiId === "ai-analysis") {
+    return (
+      <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="16" height="10" rx="2.5" stroke="#CFFF03" strokeWidth="1.4"/>
+        <circle cx="9" cy="13" r="1.5" fill="#CFFF03"/>
+        <circle cx="15" cy="13" r="1.5" fill="#CFFF03"/>
+        <path d="M11 13h2" stroke="#CFFF03" strokeWidth="1.3" strokeLinecap="round"/>
+        <path d="M8 8V6M16 8V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" className="text-muted-foreground"/>
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="w-5 h-5 flex-shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="1.4" className="text-muted-foreground"/>
+      <path d="M12 8v8M8 12h8" stroke="#CFFF03" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  );
+}
 
 export function TxHistory({ subscribed }: TxHistoryProps) {
   const [revealed, setRevealed] = useState<Set<string>>(new Set());
@@ -105,7 +137,7 @@ export function TxHistory({ subscribed }: TxHistoryProps) {
       <div className="divide-y divide-[var(--border)]">
         {txs.map((tx) => (
           <div key={tx.id} className="px-5 py-3.5 flex items-center gap-4">
-            <span className="text-xl flex-shrink-0">{ICONS[tx.apiId] ?? "🔒"}</span>
+            <TxIcon apiId={tx.apiId} />
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
