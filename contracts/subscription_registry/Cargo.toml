@@ -1,0 +1,13 @@
+[package]
+name = "subscription_registry"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk = { version = "26.1.0", features = [] }
+
+[dev-dependencies]
+soroban-sdk = { version = "26.1.0", features = ["testutils"] }
