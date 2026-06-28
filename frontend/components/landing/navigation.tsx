@@ -89,6 +89,17 @@ export function Navigation() {
               asChild
               className={`rounded-full transition-all duration-500 ${
                 isScrolled
+                  ? "bg-foreground/10 hover:bg-foreground/20 text-foreground border border-foreground/20 px-4 h-8 text-xs"
+                  : "bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6"
+              }`}
+            >
+              <a href="/app">Launch App</a>
+            </Button>
+            <Button
+              size="sm"
+              asChild
+              className={`rounded-full transition-all duration-500 ${
+                isScrolled
                   ? "bg-foreground hover:bg-foreground/90 text-background px-4 h-8 text-xs"
                   : "bg-white hover:bg-white/90 text-black px-6"
               }`}
