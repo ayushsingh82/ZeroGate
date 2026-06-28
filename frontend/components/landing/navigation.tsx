@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 const navLinks = [
-  { name: "Prizes", href: "#prizes" },
-  { name: "How to build", href: "#how-it-works" },
-  { name: "ZK stack", href: "#features" },
-  { name: "Submit", href: "#submit" },
+  { name: "How it works", href: "#how-it-works" },
+  { name: "Privacy", href: "#features" },
+  { name: "Docs", href: "/docs" },
 ];
-
-const SUBMIT_URL = "https://t.me/+e898qibDUVExODkx";
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,14 +39,14 @@ export function Navigation() {
             isScrolled ? "h-14" : "h-20"
           }`}
         >
-          <a href="#" className="flex items-center gap-2 group">
-            <span className="text-[#CFFF03] text-xl">✦</span>
+          <a href="/" className="flex items-center gap-2.5 group">
+            <Image src="/logo-mark.svg" alt="Stealth402" width={28} height={28} />
             <span
               className={`font-display tracking-tight transition-all duration-500 ${
                 isScrolled ? "text-xl text-foreground" : "text-2xl text-white"
               }`}
             >
-              Stellar<span className="text-[#CFFF03]">Hacks</span>
+              Stealth<span className="text-[#CFFF03]">402</span>
             </span>
           </a>
 
@@ -73,28 +71,7 @@ export function Navigation() {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
-            <a
-              href="https://discord.gg/stellardev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`text-sm transition-colors duration-300 font-mono ${
-                isScrolled ? "text-foreground/60 hover:text-foreground" : "text-white/60 hover:text-white"
-              }`}
-            >
-              Discord
-            </a>
-            <Button
-              size="sm"
-              asChild
-              className={`rounded-full transition-all duration-500 ${
-                isScrolled
-                  ? "bg-foreground/10 hover:bg-foreground/20 text-foreground border border-foreground/20 px-4 h-8 text-xs"
-                  : "bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6"
-              }`}
-            >
-              <a href="/app">Launch App</a>
-            </Button>
+          <div className="hidden md:flex items-center gap-3">
             <Button
               size="sm"
               asChild
@@ -104,7 +81,7 @@ export function Navigation() {
                   : "bg-white hover:bg-white/90 text-black px-6"
               }`}
             >
-              <a href={SUBMIT_URL} target="_blank" rel="noopener noreferrer">Submit project</a>
+              <a href="/app">Launch App</a>
             </Button>
           </div>
 
@@ -148,19 +125,11 @@ export function Navigation() {
             style={{ transitionDelay: isMobileMenuOpen ? "300ms" : "0ms" }}
           >
             <Button
-              className="flex-1 bg-foreground text-background rounded-full h-14 text-base"
+              className="w-full bg-foreground text-background rounded-full h-14 text-base"
               asChild
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <a href={SUBMIT_URL} target="_blank" rel="noopener noreferrer">Submit project</a>
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 rounded-full h-14 text-base border-foreground/20"
-              asChild
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <a href="https://discord.gg/stellardev" target="_blank" rel="noopener noreferrer">Join Discord</a>
+              <a href="/app">Launch App</a>
             </Button>
           </div>
         </div>

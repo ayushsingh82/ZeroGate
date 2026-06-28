@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const words = ["unverified", "off-chain", "theoretical", "wasted"];
+const words = ["exposed", "linkable", "tracked", "visible"];
 
 function BlurWord({ word, trigger }: { word: string; trigger: number }) {
   const letters = word.split("");
@@ -162,10 +162,10 @@ export function HeroSection() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#CFFF03] opacity-60" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#CFFF03]" />
                 </span>
-                Closes June 29 · 12:00 PM PST
+                Live on Stellar Testnet
               </span>
               <span className="inline-flex items-center gap-2 border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-mono text-white/60">
-                RISC Zero · Circom · Noir Lang · $10,000 in prizes
+                Circom · Groth16 · Soroban · x402
               </span>
             </div>
           </div>
@@ -176,7 +176,7 @@ export function HeroSection() {
             }`}
           >
             <span className="text-sm font-mono text-white/60">
-              Zero-knowledge hackathon on Stellar
+              Zero-knowledge API subscriptions on Stellar
             </span>
           </div>
 
@@ -186,7 +186,7 @@ export function HeroSection() {
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              <span className="block whitespace-nowrap">Your proof,</span>
+              <span className="block whitespace-nowrap">Your identity,</span>
               <span className="block whitespace-nowrap">
                 never{" "}
                 <span className="relative inline-block">
@@ -202,26 +202,24 @@ export function HeroSection() {
             }`}
           >
             <p className="text-lg text-white/55 max-w-md leading-relaxed">
-              Build anything with zero-knowledge on Stellar. Privacy pools, private payments,
-              confidential tokens, identity proofs — if it uses ZK and runs on Stellar, it counts.
-              $10,000 in prizes.
+              Pay once with Stellar USDC. Generate a ZK proof in-browser. Call private APIs
+              forever — with no wallet address, no amount, no session linkage ever leaving your
+              device.
             </p>
 
             <div className="mt-8 flex items-center gap-4">
               <a
-                href="https://t.me/+e898qibDUVExODkx"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/app"
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition-all hover:bg-white/90 hover:gap-3"
               >
-                Submit your project
+                Launch App
                 <span aria-hidden="true">→</span>
               </a>
               <a
-                href="#features"
+                href="#how-it-works"
                 className="text-sm font-mono text-white/60 transition-colors hover:text-white"
               >
-                See the ZK stack
+                How it works
               </a>
             </div>
           </div>
@@ -235,9 +233,9 @@ export function HeroSection() {
       >
         <div className="max-w-[1400px] mx-auto flex items-start gap-10 lg:gap-20">
           {[
-            { value: "$10,000", label: "total prize pool in XLM" },
-            { value: "3 ZK", label: "frameworks natively supported" },
-            { value: "$5,000", label: "for first place winner" },
+            { value: "11,741", label: "Circom circuit constraints" },
+            { value: "BN254", label: "native Stellar host functions" },
+            { value: "<3s", label: "average proof generation time" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-2">
               <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>

@@ -6,31 +6,31 @@ import { useVisible } from "@/hooks/use-visible";
 const features = [
   {
     number: "01",
-    title: "RISC Zero on Stellar",
+    title: "Hidden payment amount",
     description:
-      "Execute code on a remote VM and prove it ran correctly. Deploy a verifier contract on Stellar to check the output proof. Build anything from verifiable games to provable computation — all trustlessly confirmed on-chain.",
-    stats: { value: "RISC Zero", label: "remote execution + Stellar verifier" },
+      "The amount you pay for an API subscription is never stored on-chain. A Poseidon Merkle commitment proves you subscribed — without disclosing what tier, price, or plan you chose. The verifier contract sees a proof, not a number.",
+    stats: { value: "Poseidon", label: "Merkle commitment · depth 20" },
   },
   {
     number: "02",
-    title: "Circom Groth16 Circuits",
+    title: "Hidden merchant address",
     description:
-      "Domain-specific language for zero-knowledge circuits. Verify Groth16 proofs within Stellar smart contracts using the native BN254 host functions introduced in Protocol 25 (X-Ray). Cheap, fast, and battle-tested.",
-    stats: { value: "BN254", label: "native Stellar host functions" },
+      "The API provider's address is never posted to the Stellar network. A Poseidon hash of the merchant address and a salt becomes the on-chain commitment. Even if an attacker reads the entire ledger, they cannot determine who you paid.",
+    stats: { value: "Off-chain", label: "merchant address stays local" },
   },
   {
     number: "03",
-    title: "Noir Lang UltraHonk",
+    title: "Unlinkable sessions",
     description:
-      "Rust-like DSL for ZK circuits that's simple to read and build with. Protocol 26 (Yardstick) adds nine BN254 host functions — multi-scalar multiplication, scalar-field arithmetic, and curve-membership checks — making Noir proofs meaningfully cheaper to verify.",
-    stats: { value: "Protocol 26", label: "Yardstick — 9 new BN254 functions" },
+      "Each API call uses a fresh Groth16 nullifier. Two requests from the same subscriber are indistinguishable — the server has no session token, no cookie, no wallet address. The nullifier registry prevents double-spend without enabling tracking.",
+    stats: { value: "Groth16", label: "per-call nullifier · no replay" },
   },
   {
     number: "04",
-    title: "Real-World ZK Use Cases",
+    title: "Zero identity leak",
     description:
-      "Stellar moves real money in the real world — stablecoins, cross-border payments, tokenized RWAs, and institutional settlement. Projects that bring ZK to those use cases are especially welcome: private payments, compliance proofs, confidential tokens.",
-    stats: { value: "RWA", label: "real-world asset + identity proofs" },
+      "Your Freighter wallet signs nothing visible to the API server. The x402 payment is a private Stellar USDC transfer; the proof is generated entirely in-browser using snarkjs. The server verifies the proof, not your identity.",
+    stats: { value: "In-browser", label: "snarkjs · no server key material" },
   },
 ];
 
@@ -136,16 +136,16 @@ export function FeaturesSection() {
           <div className="grid lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-7">
               <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-                ZK Stack
+                Privacy model
               </span>
               <h2
                 className={`text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.9] transition-all duration-1000 ${
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 }`}
               >
-                Build the proof.
+                Three things
                 <br />
-                <span className="text-muted-foreground">Verify on-chain.</span>
+                <span className="text-muted-foreground">stay hidden.</span>
               </h2>
             </div>
             <div className="lg:col-span-5 lg:pb-4">
@@ -154,9 +154,9 @@ export function FeaturesSection() {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 }`}
               >
-                Stellar&apos;s native BN254 and BLS12-381 host functions make on-chain ZK
-                verification cheap and real. Generate proofs off-chain with RISC Zero, Circom, or
-                Noir — then verify them in a Soroban contract.
+                Stealth402 enforces three cryptographic privacy invariants: hidden amount, hidden
+                merchant, unlinkable sessions. All three are proven on-chain via a single Groth16
+                proof — no trusted third party, no server secrets.
               </p>
             </div>
           </div>

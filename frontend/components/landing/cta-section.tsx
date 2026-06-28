@@ -17,7 +17,7 @@ export function CtaSection() {
   };
 
   return (
-    <section id="submit" ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden">
+    <section id="get-started" ref={sectionRef} className="relative py-24 lg:py-32 overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
         <div
           className={`relative border border-foreground transition-all duration-1000 ${
@@ -40,39 +40,34 @@ export function CtaSection() {
                 </span>
 
                 <h2 className="text-6xl md:text-7xl lg:text-[72px] font-display tracking-tight mb-8 leading-[0.95]">
-                  Your ZK submission
+                  Private APIs,
                   <br />
-                  <span className="text-muted-foreground">closes June 29.</span>
+                  <span className="text-muted-foreground">proven on-chain.</span>
                 </h2>
 
                 <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
-                  Build anything with zero-knowledge on Stellar. Privacy pools, private payments,
-                  confidential tokens, provable computation — if ZK is load-bearing and it runs on
-                  Stellar, you&apos;re eligible. $10,000 in prizes.
+                  Connect your Freighter wallet, subscribe to an API with a single USDC payment, and
+                  generate your first ZK proof in under three seconds — entirely in the browser.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start gap-4">
                   <a
-                    href="https://t.me/+e898qibDUVExODkx"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="/app"
                     className="inline-flex items-center gap-2 bg-foreground text-background px-8 py-4 text-base font-medium hover:bg-foreground/90 transition-colors group"
                   >
-                    Submit your project
+                    Launch App
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                   </a>
                   <a
-                    href="https://discord.gg/stellardev"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="/docs"
                     className="inline-flex items-center gap-2 border border-foreground/20 px-8 py-4 text-base font-mono hover:bg-foreground/5 transition-colors"
                   >
-                    Join #zk-chat →
+                    Read the docs →
                   </a>
                 </div>
 
                 <p className="text-sm text-muted-foreground mt-8 font-mono">
-                  Stellar Testnet · Open source · $10,000 prize pool
+                  Stellar Testnet · Open source · Circom + Groth16 + Soroban
                 </p>
               </div>
 

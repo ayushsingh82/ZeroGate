@@ -2,53 +2,49 @@
 
 import { useVisible } from "@/hooks/use-visible";
 
-const tools = [
+const stack = [
   {
-    title: "RISC Zero SDK",
-    description: "Prove arbitrary Rust code execution. Deploy a Stellar verifier contract to check output proofs trustlessly.",
-  },
-  {
-    title: "Circom circuits",
-    description: "Write Groth16 ZK circuits. Use native BN254 host functions (Protocol 25) for cheap on-chain verification.",
-  },
-  {
-    title: "Noir Lang",
-    description: "Rust-like ZK DSL. Protocol 26 (Yardstick) makes UltraHonk proof verification meaningfully cheaper.",
+    title: "Circom 2.0 circuit",
+    description: "11,741 constraints. Poseidon Merkle membership proof, nullifier derivation, merchant commitment, timestamp validity. Compiled with snarkjs Groth16.",
   },
   {
     title: "Soroban verifier",
-    description: "Deploy verifier contracts to Stellar. BLS12-381 support from earlier protocols rounds out the ZK toolkit.",
+    description: "Three contracts: Groth16Verifier (BN254 pairing check), NullifierRegistry (double-spend prevention), SubscriptionRegistry (Merkle tree + proof orchestration).",
+  },
+  {
+    title: "x402 payment layer",
+    description: "HTTP 402 flow over Stellar USDC SAC. The server issues a 402 challenge; the client pays and receives a leaf commitment. Amount never stored.",
+  },
+  {
+    title: "Freighter integration",
+    description: "In-browser wallet via @stellar/freighter-api. The wallet signs the x402 payment; the ZK proof is generated locally by snarkjs — no key material leaves the browser.",
   },
 ];
 
-const codeSnippet = `// Circom circuit — private membership proof
+const codeSnippet = `// subscription_proof.circom — core privacy circuit
 pragma circom 2.0.0;
-
 include "poseidon.circom";
+include "merkleProof.circom";
 
-template MembershipProof(levels) {
-    signal input leaf;
-    signal input pathElements[levels];
-    signal input pathIndices[levels];
+template SubscriptionProof(levels) {
+    // Private inputs — never leave the browser
+    signal input secret;
+    signal input merkle_path[levels];
+    signal input path_indices[levels];
+    signal input nullifier_secret;
+    signal input merchant_addr;
+    signal input merchant_salt;
+    signal input amount;          // ← amount stays private
+
+    // Public outputs — the only things the server sees
     signal output root;
+    signal output nullifier;
+    signal output merchant_commitment;
+    signal output timestamp;
 
-    // Prove leaf is in Merkle tree without revealing leaf
-    component hashers[levels];
-    // ... build Merkle path
-}
-
-// Stellar verifier contract (Rust/Soroban)
-#[contractimpl]
-impl ZKVerifier {
-    pub fn verify_membership(
-        env: Env,
-        proof: Bytes,
-        root: u256,
-        nullifier: u256,
-    ) -> bool {
-        // native BN254 pairing check
-        bn254_pairing_check(&env, &proof, &[root, nullifier])
-    }
+    // Prove Merkle membership without revealing leaf
+    component merkle = MerkleProof(levels);
+    // ... 11,741 constraints total
 }`;
 
 export function BuildSection() {
@@ -78,12 +74,12 @@ export function BuildSection() {
           }`}
         >
           <span className="inline-flex items-center gap-3 text-sm font-mono text-muted-foreground mb-6">
-            For builders
+            Technical stack
           </span>
           <h2 className="text-6xl md:text-7xl lg:text-[128px] font-display tracking-tight leading-[0.9]">
-            Compose ZK proofs
+            Built on proven
             <br />
-            <span className="text-muted-foreground">into anything.</span>
+            <span className="text-muted-foreground">ZK primitives.</span>
           </h2>
         </div>
 
@@ -94,40 +90,38 @@ export function BuildSection() {
             }`}
           >
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-md">
-              Privacy pools, private payments, confidential tokens, identity and compliance proofs,
-              provable computation, verifiable data — if it uses ZK and runs on Stellar, it counts.
+              Every layer of Stealth402 is open source. The circuit, the contracts, the middleware,
+              and the frontend — all auditable and self-hostable.
             </p>
             <div className="grid grid-cols-2 gap-6">
-              {tools.map((tool, index) => (
+              {stack.map((item, index) => (
                 <div
-                  key={tool.title}
+                  key={item.title}
                   className={`transition-all duration-500 ${
                     isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                   }`}
                   style={{ transitionDelay: `${index * 50 + 200}ms` }}
                 >
-                  <h3 className="font-medium mb-1">{tool.title}</h3>
-                  <p className="text-sm text-muted-foreground">{tool.description}</p>
+                  <h3 className="font-medium mb-1">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
                 </div>
               ))}
             </div>
 
             <div className="mt-10 flex gap-4">
               <a
-                href="https://developers.stellar.org"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/docs"
                 className="inline-flex items-center gap-2 text-sm font-mono border border-foreground/20 px-5 py-2.5 hover:bg-foreground/5 transition-colors"
               >
-                Stellar docs →
+                Read the docs →
               </a>
               <a
-                href="https://discord.gg/stellardev"
+                href="https://github.com/ayushsingh82/Stealth402"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors"
               >
-                #zk-chat on Discord ↗
+                View on GitHub ↗
               </a>
             </div>
           </div>
@@ -142,7 +136,7 @@ export function BuildSection() {
                 <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
                 <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
                 <div className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
-                <span className="ml-2 text-xs font-mono text-muted-foreground">membership.circom + verifier.rs</span>
+                <span className="ml-2 text-xs font-mono text-muted-foreground">subscription_proof.circom</span>
               </div>
               <pre className="p-6 text-xs font-mono text-white/70 overflow-x-auto leading-relaxed whitespace-pre">
                 {codeSnippet}

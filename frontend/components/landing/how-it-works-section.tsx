@@ -6,49 +6,51 @@ import { useVisible } from "@/hooks/use-visible";
 const steps = [
   {
     number: "01",
-    title: "Pick a ZK framework",
-    subtitle: "RISC Zero, Circom, or Noir",
+    title: "Subscribe via x402",
+    subtitle: "one USDC payment · hidden amount",
     description:
-      "Choose the ZK system that fits your project. RISC Zero for general computation, Circom for Groth16 circuits, Noir for a Rust-like DSL. Generate proofs off-chain — Stellar verifies them on-chain using native BN254 host functions.",
-    code: `# Noir example — write your circuit
-fn main(secret: Field, pub_hash: pub Field) {
-    let computed = std::hash::poseidon([secret]);
-    assert(computed == pub_hash);
+      "Pay once with Stellar USDC using the HTTP 402 protocol. Your subscription becomes a leaf commitment in an on-chain Poseidon Merkle tree. The amount paid and the merchant address are never posted to the ledger.",
+    code: `// x402 subscription — amount stays private
+POST /subscribe
+{
+  "leaf": Poseidon(secret, expiry, sub_id, merchant_commitment),
+  "payment": "Stellar USDC · amount hidden on-chain"
 }
 
-# Generate proof off-chain, verify on Stellar`,
+// On-chain: only the Merkle leaf is stored
+// Soroban contract: insert_leaf(leaf) -> root`,
   },
   {
     number: "02",
-    title: "Deploy & verify on Stellar",
-    subtitle: "Soroban verifier contract",
+    title: "Generate a ZK proof",
+    subtitle: "in-browser · no server key material",
     description:
-      "Deploy a verifier smart contract to Stellar testnet. Protocol 25 (X-Ray) gives you BN254 elliptic-curve ops and Poseidon hashing. Protocol 26 (Yardstick) adds multi-scalar multiplication, making proof verification meaningfully cheaper.",
-    code: `#[contractimpl]
-impl VerifierContract {
-    pub fn verify(
-        env: Env,
-        proof: Bytes,
-        public_inputs: Vec<u256>,
-    ) -> bool {
-        // native BN254 host functions
-        groth16_verify(&env, proof, public_inputs)
-    }
-}`,
+      "Your browser runs the Circom circuit (11,741 constraints) using snarkjs and your local Freighter wallet secret. The Groth16 proof certifies Merkle membership, a fresh nullifier, and the merchant commitment — without revealing any of the underlying data.",
+    code: `// snarkjs in-browser proof generation
+const { proof, publicSignals } = await groth16.fullProve(
+  { secret, merkle_path, nullifier, expiry },
+  "subscription_proof.wasm",
+  "subscription_proof_final.zkey"
+);
+
+// Proof time: ~2.8s  |  Circuit: BN254 Groth16
+// Public signals: root, nullifier, merchant_commitment, timestamp`,
   },
   {
     number: "03",
-    title: "Submit your hack",
-    subtitle: "open source + demo video",
+    title: "Call the API privately",
+    subtitle: "proof as credential · session unlinkable",
     description:
-      "Open-source your repo on GitHub/GitLab with a clear README. Record a 2–3 minute demo video showing ZK doing real work. ZK must be load-bearing — not a wrapper — and proofs must be verified in a Stellar contract or on Stellar testnet/mainnet.",
-    code: `## Submission checklist
-✓ Public repo with source + README
-✓ 2–3 min demo video
-✓ ZK load-bearing (not cosmetic)
-✓ Proofs verified on Stellar contract
+      "Attach the Groth16 proof as a base64 header on every API request. The server verifies on-chain via the Soroban verifier contract, spends the nullifier to prevent replay, and returns the response — without knowing your wallet address or subscription amount.",
+    code: `// API request with ZK proof header
+GET /api/weather
+X-Stealth402-Proof: <base64-groth16-proof>
 
-Submit via Telegram: t.me/+e898qibDUVExODkx`,
+// Server middleware: off-chain snarkjs verify
+// + on-chain nullifier spend (Soroban contract)
+// Wallet address: never seen by server
+// Amount: never seen by server
+// Session: unlinkable across calls`,
   },
 ];
 
@@ -88,9 +90,9 @@ export function HowItWorksSection() {
                 isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
               }`}
             >
-              <span className="block">Prove.</span>
-              <span className="block text-white/60">Deploy.</span>
-              <span className="block text-white/35">Submit.</span>
+              <span className="block">Subscribe.</span>
+              <span className="block text-white/60">Prove.</span>
+              <span className="block text-white/35">Access.</span>
             </h2>
           </div>
 

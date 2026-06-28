@@ -1,35 +1,32 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = {
-  Hackathon: [
-    { name: "Prize pool", href: "#prizes" },
-    { name: "How to build", href: "#how-it-works" },
-    { name: "ZK stack", href: "#features" },
-    { name: "Submit project", href: "https://t.me/+e898qibDUVExODkx", external: true },
+  Product: [
+    { name: "How it works", href: "#how-it-works" },
+    { name: "Privacy model", href: "#features" },
+    { name: "Technical stack", href: "#build" },
+    { name: "Launch App", href: "/app" },
   ],
-  "ZK Frameworks": [
-    { name: "RISC Zero", href: "https://dev.risczero.com/", external: true },
-    { name: "Circom", href: "https://docs.circom.io/", external: true },
-    { name: "Noir Lang", href: "https://noir-lang.org/docs/", external: true },
-    { name: "Stellar verifier", href: "https://github.com/stellar/soroban-examples", external: true },
+  Docs: [
+    { name: "Getting started", href: "/docs" },
+    { name: "Circuit design", href: "/docs#circuit" },
+    { name: "API reference", href: "/docs#api" },
+    { name: "GitHub", href: "https://github.com/ayushsingh82/Stealth402", external: true },
   ],
-  Community: [
-    { name: "Stellar Dev Discord", href: "https://discord.gg/stellardev", external: true },
-    { name: "Telegram", href: "https://t.me/+e898qibDUVExODkx", external: true },
-    { name: "#zk-chat channel", href: "https://discord.gg/stellardev", external: true },
-  ],
-  Resources: [
-    { name: "Stellar docs", href: "https://developers.stellar.org", external: true },
-    { name: "Protocol 25 (X-Ray)", href: "https://developers.stellar.org", external: true },
-    { name: "Protocol 26 (Yardstick)", href: "https://developers.stellar.org", external: true },
+  Protocol: [
+    { name: "x402 payment flow", href: "/docs#x402" },
+    { name: "Groth16 verifier", href: "/docs#verifier" },
+    { name: "Nullifier registry", href: "/docs#nullifier" },
+    { name: "Stellar testnet", href: "https://developers.stellar.org", external: true },
   ],
 };
 
 const socialLinks = [
-  { name: "Discord", href: "https://discord.gg/stellardev" },
-  { name: "Telegram", href: "https://t.me/+e898qibDUVExODkx" },
+  { name: "GitHub", href: "https://github.com/ayushsingh82/Stealth402" },
+  { name: "Stellar Docs", href: "https://developers.stellar.org" },
 ];
 
 export function FooterSection() {
@@ -48,18 +45,18 @@ export function FooterSection() {
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-12">
         <div className="py-16 lg:py-20">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-12 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-12 lg:gap-8">
             <div className="col-span-2">
-              <a href="/" className="inline-flex items-center gap-2 mb-6">
-                <span className="text-[#CFFF03] text-xl">✦</span>
+              <a href="/" className="inline-flex items-center gap-2.5 mb-6">
+                <Image src="/logo-mark.svg" alt="Stealth402" width={28} height={28} />
                 <span className="text-2xl font-display text-white">
-                  Stellar<span className="text-[#CFFF03]">Hacks</span>
+                  Stealth<span className="text-[#CFFF03]">402</span>
                 </span>
               </a>
 
               <p className="text-white/50 leading-relaxed mb-8 max-w-xs text-sm">
-                Build zero-knowledge on Stellar. Privacy pools, private payments, confidential tokens,
-                identity proofs — $10,000 in prizes. Powered by Protocol 25 & 26.
+                Zero-knowledge API subscriptions on Stellar. Hidden amounts, hidden merchant,
+                unlinkable sessions. Built with Circom, Groth16, and Soroban.
               </p>
 
               <div className="flex gap-6">
@@ -102,14 +99,14 @@ export function FooterSection() {
 
         <div className="py-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-white/30">
-            &copy; 2026 Stellar Hacks. Open source.
+            &copy; 2026 Stealth402. Open source under MIT.
           </p>
           <div className="flex items-center gap-6 text-sm text-white/30">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#CFFF03]" />
               Stellar Testnet
             </span>
-            <span className="font-mono">Submissions close June 29</span>
+            <span className="font-mono">Groth16 · BN254 · Soroban</span>
           </div>
         </div>
       </div>
