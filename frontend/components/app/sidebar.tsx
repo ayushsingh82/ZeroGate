@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShieldCheck, History, ExternalLink } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, History } from "lucide-react";
 import { WalletConnect } from "./wallet-connect";
 
 const NAV = [
@@ -86,13 +86,6 @@ export function AppSidebar() {
 
       <div className="p-3 border-t border-[var(--border)] space-y-2">
         <WalletConnect />
-        <Link
-          href="/"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--accent)] transition-colors"
-        >
-          <ExternalLink className="w-3 h-3" />
-          Back to landing
-        </Link>
       </div>
     </aside>
   );
