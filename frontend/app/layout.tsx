@@ -20,9 +20,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Stellar Hacks — Real-World ZK on Stellar',
+  title: 'Stealth402 — Private 402 Payments on Stellar',
   description:
-    'Build zero-knowledge proofs on Stellar. Privacy pools, private payments, confidential tokens, identity proofs — $10,000 in prizes. Powered by Protocol 25 (X-Ray) and Protocol 26 (Yardstick).',
+    'Zero-knowledge API subscriptions on Stellar. Pay with USDC, prove access with a Groth16 proof, call APIs without revealing your wallet, amount, or session identity.',
+  icons: {
+    icon: '/logo-mark.svg',
+    shortcut: '/logo-mark.svg',
+  },
 }
 
 export default function RootLayout({

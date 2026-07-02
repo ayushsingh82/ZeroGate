@@ -7,7 +7,7 @@ interface Api {
   id: string;
   name: string;
   endpoint: string;
-  icon: string;
+  icon?: string;
 }
 
 interface ProofGeneratorProps {
@@ -70,9 +70,8 @@ export function ProofGenerator({ api, onClose }: ProofGeneratorProps) {
     <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] overflow-hidden">
       <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--border)]">
         <div className="flex items-center gap-2">
-          <span className="text-lg">{api.icon}</span>
           <div>
-            <p className="text-sm font-medium text-[var(--foreground)]">{api.name}</p>
+            <p className="text-sm font-medium text-[var(--foreground)]">{api.name} — Proof of Payment</p>
             <p className="text-xs text-[var(--muted-foreground)] font-mono">{api.endpoint}</p>
           </div>
         </div>

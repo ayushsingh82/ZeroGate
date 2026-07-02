@@ -1,25 +1,34 @@
 <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stealth402">
   <defs>
-    <filter id="g">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#141408"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
 
   <!-- Background -->
-  <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
 
-  <!-- Lock shackle -->
-  <path d="M21 31 V22 C21 12 43 12 43 22 V31"
-        fill="none" stroke="#CFFF03" stroke-width="3" stroke-linecap="round"
-        filter="url(#g)"/>
+  <!-- Hexagon outline -->
+  <polygon
+    points="32,7 54,19.5 54,44.5 32,57 10,44.5 10,19.5"
+    fill="none" stroke="#CFFF03" stroke-width="2" stroke-linejoin="round"
+    filter="url(#glow)"/>
 
-  <!-- Lock body -->
-  <rect x="14" y="31" width="36" height="22" rx="6"
-        fill="none" stroke="#CFFF03" stroke-width="2.5"
-        filter="url(#g)"/>
+  <!-- Inner nodes: triangle of 3 dots -->
+  <circle cx="32" cy="24" r="3.5" fill="#CFFF03" filter="url(#glow)"/>
+  <circle cx="23" cy="39" r="3.5" fill="#CFFF03" filter="url(#glow)"/>
+  <circle cx="41" cy="39" r="3.5" fill="#CFFF03" filter="url(#glow)"/>
 
-  <!-- Keyhole -->
-  <circle cx="32" cy="40" r="3.5" fill="#CFFF03"/>
-  <rect x="30.5" y="42.5" width="3" height="5" rx="1" fill="#CFFF03"/>
+  <!-- Connecting edges -->
+  <line x1="32" y1="24" x2="23" y2="39" stroke="#CFFF03" stroke-width="1.6" stroke-opacity="0.7"/>
+  <line x1="32" y1="24" x2="41" y2="39" stroke="#CFFF03" stroke-width="1.6" stroke-opacity="0.7"/>
+  <line x1="23" y1="39" x2="41" y2="39" stroke="#CFFF03" stroke-width="1.6" stroke-opacity="0.7"/>
+
+  <!-- Center dot (proof witness) -->
+  <circle cx="32" cy="34" r="2" fill="#CFFF03" fill-opacity="0.5"/>
 </svg>

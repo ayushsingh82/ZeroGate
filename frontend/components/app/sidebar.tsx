@@ -17,19 +17,22 @@ export function AppSidebar() {
   return (
     <aside className="w-60 flex-shrink-0 border-r border-[var(--border)] flex flex-col h-full bg-[var(--card)]">
       <div className="p-5 border-b border-[var(--border)]">
-        <div className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5 group">
           <svg viewBox="0 0 64 64" className="w-7 h-7 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
             <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
-            <path d="M21 31 V22 C21 12 43 12 43 22 V31" fill="none" stroke="#CFFF03" strokeWidth="3" strokeLinecap="round"/>
-            <rect x="14" y="31" width="36" height="22" rx="6" fill="none" stroke="#CFFF03" strokeWidth="2.5"/>
-            <circle cx="32" cy="40" r="3.5" fill="#CFFF03"/>
-            <rect x="30.5" y="42.5" width="3" height="5" rx="1" fill="#CFFF03"/>
+            <polygon points="32,7 54,19.5 54,44.5 32,57 10,44.5 10,19.5" fill="none" stroke="#CFFF03" strokeWidth="2" strokeLinejoin="round"/>
+            <circle cx="32" cy="24" r="3.5" fill="#CFFF03"/>
+            <circle cx="23" cy="39" r="3.5" fill="#CFFF03"/>
+            <circle cx="41" cy="39" r="3.5" fill="#CFFF03"/>
+            <line x1="32" y1="24" x2="23" y2="39" stroke="#CFFF03" strokeWidth="1.6" strokeOpacity="0.7"/>
+            <line x1="32" y1="24" x2="41" y2="39" stroke="#CFFF03" strokeWidth="1.6" strokeOpacity="0.7"/>
+            <line x1="23" y1="39" x2="41" y2="39" stroke="#CFFF03" strokeWidth="1.6" strokeOpacity="0.7"/>
+            <circle cx="32" cy="34" r="2" fill="#CFFF03" fillOpacity="0.5"/>
           </svg>
-          <div>
-            <p className="text-sm font-semibold text-[var(--foreground)] leading-none">Stealth<span style={{color:"#CFFF03"}}>402</span></p>
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">Private API Subscriptions</p>
-          </div>
-        </div>
+          <p className="text-sm font-semibold text-[var(--foreground)] leading-none group-hover:text-[#CFFF03] transition-colors">
+            Stealth<span style={{color:"#CFFF03"}}>402</span>
+          </p>
+        </Link>
       </div>
 
       <nav className="flex-1 p-3 space-y-0.5">
