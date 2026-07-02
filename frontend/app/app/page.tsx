@@ -5,8 +5,9 @@ import { ApiCard } from "@/components/app/api-card";
 import { TxHistory } from "@/components/app/tx-history";
 import { ProofGenerator } from "@/components/app/proof-generator";
 import { StatsBar } from "@/components/app/stats-bar";
+import { WalletConnect } from "@/components/app/wallet-connect";
 import { useWallet } from "@/hooks/use-wallet";
-import { ShieldCheck, LayoutGrid, Clock } from "lucide-react";
+import { ShieldCheck, LayoutGrid, Clock, Wallet } from "lucide-react";
 
 const APIS = [
   {
@@ -48,6 +49,31 @@ export default function DashboardPage() {
   const { isConnected } = useWallet();
   const [activeProof, setActiveProof] = useState<string | null>(null);
   const [subscribed, setSubscribed] = useState<string[]>([]);
+
+  // Gate: require wallet connection before showing the dashboard
+  if (!isConnected) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-sm w-full text-center space-y-6">
+          <div className="w-14 h-14 rounded-2xl bg-[var(--accent)] border border-[var(--border)] flex items-center justify-center mx-auto">
+            <Wallet className="w-6 h-6 text-[var(--muted-foreground)]" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--foreground)] mb-2">Connect your wallet</h2>
+            <p className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+              Connect Freighter to subscribe to private APIs and generate ZK proofs of payment.
+            </p>
+          </div>
+          <div className="space-y-3">
+            <WalletConnect />
+            <p className="text-xs text-[var(--muted-foreground)]">
+              Your wallet address is never sent to the API server.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-8 max-w-5xl">
