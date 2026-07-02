@@ -6,51 +6,47 @@ import { useVisible } from "@/hooks/use-visible";
 const steps = [
   {
     number: "01",
-    title: "Subscribe via x402",
-    subtitle: "one USDC payment · hidden amount",
+    title: "Pay privately via x402",
+    subtitle: "amount hidden · merchant hidden",
     description:
-      "Pay once with Stellar USDC using the HTTP 402 protocol. Your subscription becomes a leaf commitment in an on-chain Poseidon Merkle tree. The amount paid and the merchant address are never posted to the ledger.",
-    code: `// x402 subscription — amount stays private
-POST /subscribe
-{
-  "leaf": Poseidon(secret, expiry, sub_id, merchant_commitment),
-  "payment": "Stellar USDC · amount hidden on-chain"
-}
+      "Send a single USDC payment over HTTP 402 on Stellar. The amount you paid and the merchant's address are never written to the ledger — only a Poseidon commitment of your subscription is stored on-chain. Nobody watching the network can tell what you paid or who you paid.",
+    code: `// What goes on-chain (Soroban contract)
+leaf = Poseidon(secret, expiry, sub_id, merchant_commitment)
+merchant_commitment = Poseidon(merchant_addr, salt)
 
-// On-chain: only the Merkle leaf is stored
-// Soroban contract: insert_leaf(leaf) -> root`,
+// What NEVER goes on-chain
+// ✗  payment amount
+// ✗  merchant Stellar address
+// ✗  your wallet address`,
   },
   {
     number: "02",
-    title: "Generate a ZK proof",
-    subtitle: "in-browser · no server key material",
+    title: "Prove payment with ZK",
+    subtitle: "in-browser · no identity revealed",
     description:
-      "Your browser runs the Circom circuit (11,741 constraints) using snarkjs and your local Freighter wallet secret. The Groth16 proof certifies Merkle membership, a fresh nullifier, and the merchant commitment — without revealing any of the underlying data.",
-    code: `// snarkjs in-browser proof generation
-const { proof, publicSignals } = await groth16.fullProve(
-  { secret, merkle_path, nullifier, expiry },
-  "subscription_proof.wasm",
-  "subscription_proof_final.zkey"
-);
+      "Your browser generates a Groth16 zero-knowledge proof that you own a valid subscription leaf in the Merkle tree — without revealing which leaf, how much you paid, or who the merchant is. The proof is the only credential you need.",
+    code: `// ZK proof proves all three at once:
+// 1. You have a valid subscription (Merkle membership)
+// 2. It hasn't expired (timestamp check)
+// 3. It's for the right merchant (commitment match)
 
-// Proof time: ~2.8s  |  Circuit: BN254 Groth16
-// Public signals: root, nullifier, merchant_commitment, timestamp`,
+// What the proof reveals: nothing private
+publicSignals = { root, nullifier, merchant_commitment, ts }
+
+// Proof time: ~2.8s · 11,741 constraints · BN254`,
   },
   {
     number: "03",
-    title: "Call the API privately",
-    subtitle: "proof as credential · session unlinkable",
+    title: "Access the API",
+    subtitle: "proof as key · session unlinkable",
     description:
-      "Attach the Groth16 proof as a base64 header on every API request. The server verifies on-chain via the Soroban verifier contract, spends the nullifier to prevent replay, and returns the response — without knowing your wallet address or subscription amount.",
-    code: `// API request with ZK proof header
-GET /api/weather
+      "Send the proof with every API call. The server verifies it against the on-chain Merkle root and spends a fresh nullifier — confirming payment without ever learning your wallet, your amount, or linking this call to any previous one.",
+    code: `// Every API call carries only the proof
+GET /api/prices
 X-Stealth402-Proof: <base64-groth16-proof>
 
-// Server middleware: off-chain snarkjs verify
-// + on-chain nullifier spend (Soroban contract)
-// Wallet address: never seen by server
-// Amount: never seen by server
-// Session: unlinkable across calls`,
+// Server checks:  proof valid? ✓  nullifier unspent? ✓
+// Server never sees:  wallet address  amount  session history`,
   },
 ];
 
