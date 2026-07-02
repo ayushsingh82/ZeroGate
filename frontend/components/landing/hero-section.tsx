@@ -199,9 +199,9 @@ export function HeroSection() {
             }`}
           >
             <p className="text-lg text-white/55 max-w-md leading-relaxed">
-              Pay once with Stellar USDC. Generate a ZK proof in-browser. Call private APIs
-              forever — with no wallet address, no amount, no session linkage ever leaving your
-              device.
+              Pay for APIs through HTTP 402 on Stellar — amount hidden, merchant address hidden.
+              Get a ZK proof of payment. Use it as your credential forever, with no wallet,
+              no identity, no session ever linked to your calls.
             </p>
 
             <div className="mt-8 flex items-center gap-4">
