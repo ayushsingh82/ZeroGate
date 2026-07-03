@@ -1,15 +1,15 @@
-# ZeroGate — Private API Subscriptions with ZK on Stellar
+# ZeroGate — Private API Subscriptions with x402 + ZK on Stellar
 
 > Deposit. Prove. Access. Anonymously.
 
-ZeroGate routes API subscription payments through an on-chain **ShieldedPool** contract and issues ZK credentials — so the merchant never appears on-chain, the server never learns your wallet, and every API call is unlinkable to every other.
+ZeroGate is a private API monetisation protocol built on the **x402 payment standard** and Stellar's ZK host functions. When you call a ZeroGate-protected API without a session, the server returns an HTTP **402 Payment Required** response — but instead of advertising the merchant's wallet, the `to:` field points to a **ShieldedPool Soroban contract**. You deposit USDC to the pool, the server receives only a commitment hash, and you prove access with a Groth16 ZK proof. The merchant never appears on-chain. The server never sees your wallet. Every API call is unlinkable.
 
 ---
 
 ## The Problem
 
 Standard API subscription payments are fully public:
-- Merchant wallet address visible on the ledger
+- The **x402 402 response** leaks the merchant's wallet address to every API caller
 - Payment amount visible in every block explorer
 - Every API call traceable back to the paying wallet
 
