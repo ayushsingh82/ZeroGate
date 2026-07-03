@@ -8,7 +8,7 @@ import { useWallet } from "@/hooks/use-wallet";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
 import { LayoutGrid, Wallet, Loader2 } from "lucide-react";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "";
 
 export default function DashboardPage() {
   const { isConnected } = useWallet();

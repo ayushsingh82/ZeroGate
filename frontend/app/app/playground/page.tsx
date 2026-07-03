@@ -5,7 +5,7 @@ import { Loader2, Play, ChevronDown, ChevronUp, ShieldCheck, Lock, ArrowRight } 
 import Link from "next/link";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "";
 const SHIELDED_POOL = "CDMJVGYOLXA4UF4FYWMP2XXHBX7OGNM6C54NZ6BAEUPL6TXPSUJVGXYY";
 
 const API_META = {

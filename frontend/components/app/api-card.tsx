@@ -118,11 +118,10 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
 
       // Step 2: server issues session token based on commitment — never sees wallet address
       setPayState("registering");
-      const resp = await fetch("http://localhost:3001/subscribe", {
+      const resp = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // No wallet, no tx_hash — server is blind to subscriber identity
           api_id: api.id,
           commitment,
           leaf_index: leafIndex,
@@ -137,10 +136,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
         throw new Error(err.error ?? "Subscription registration failed");
       }
 
-      const data = await resp.json() as {
-        merchant_commitment: string;
-        session_token: string;
-      };
+      const data = await resp.json() as { session_token: string };
 
       setPayState("done");
       onSubscribe({
@@ -150,7 +146,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
         subscribedAt: new Date().toISOString(),
         subscriberSecret,
         leafIndex,
-        merchantCommitment: data.merchant_commitment,
+        merchantCommitment: commitment,
         subscriptionId,
         sessionToken: data.session_token,
         commitment,
