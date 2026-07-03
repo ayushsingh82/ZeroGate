@@ -43,12 +43,13 @@ function ApiIcon({ id }: { id: string }) {
 export interface SubscriptionData {
   apiId: string;
   txHash: string;
-  amount: string;        // USDC amount, verified on-chain
-  subscribedAt: string;  // ISO timestamp
-  subscriberSecret: string; // client-side only, used for ZK proof generation
+  amount: string;
+  subscribedAt: string;
+  subscriberSecret: string;
   leafIndex: number;
   merchantCommitment: string;
   subscriptionId: string;
+  sessionToken: string;   // from backend, used for playground API calls
 }
 
 export interface Api {
@@ -133,6 +134,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
       const data = await resp.json() as {
         leaf_index: number;
         merchant_commitment: string;
+        session_token: string;
       };
 
       setPayState("done");
@@ -145,6 +147,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
         leafIndex: data.leaf_index,
         merchantCommitment: data.merchant_commitment,
         subscriptionId,
+        sessionToken: data.session_token,
       });
     } catch (err) {
       setPayState("error");

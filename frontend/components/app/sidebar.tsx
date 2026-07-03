@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShieldCheck, History } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, History, Play } from "lucide-react";
 import { WalletConnect } from "./wallet-connect";
 
 const NAV = [
-  { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app#proofs", label: "ZK Proofs", icon: ShieldCheck },
-  { href: "/app#history", label: "History", icon: History },
+  { href: "/app",            label: "Dashboard",  icon: LayoutDashboard },
+  { href: "/app/proofs",     label: "ZK Proofs",  icon: ShieldCheck },
+  { href: "/app/history",    label: "History",    icon: History },
+  { href: "/app/playground", label: "Playground", icon: Play },
 ];
 
 export function AppSidebar() {
@@ -30,7 +31,7 @@ export function AppSidebar() {
             <circle cx="32" cy="34" r="2" fill="#CFFF03" fillOpacity="0.5"/>
           </svg>
           <p className="text-sm font-semibold text-[var(--foreground)] leading-none group-hover:text-[#CFFF03] transition-colors">
-            Stealth<span style={{color:"#CFFF03"}}>402</span>
+            Stealth<span style={{ color: "#CFFF03" }}>402</span>
           </p>
         </Link>
       </div>
@@ -84,7 +85,7 @@ export function AppSidebar() {
         </div>
       </nav>
 
-      <div className="p-3 border-t border-[var(--border)] space-y-2">
+      <div className="p-3 border-t border-[var(--border)]">
         <WalletConnect />
       </div>
     </aside>

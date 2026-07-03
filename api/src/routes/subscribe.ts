@@ -1,6 +1,11 @@
 import { Router } from "express";
+import { randomBytes } from "crypto";
 import { generateMerchantCommitment, generateLeaf } from "../lib/commitment";
 import { addSubscriptionToChain } from "../lib/stellar";
+
+// In-memory session store: token → { leafHash, expiresAt }
+// Used by the playground so users can call APIs without a full ZK proof.
+export const SESSION_STORE = new Map<string, { leafHash: string; expiresAt: number }>();
 
 export const subscribeRouter = Router();
 
@@ -153,6 +158,10 @@ subscribeRouter.post("/subscribe", async (req, res) => {
       console.warn("Soroban contract not deployed — using local leaf index:", leafIndex);
     }
 
+    // Issue a session token for playground API calls (demo path — no full ZK proof needed)
+    const sessionToken = randomBytes(24).toString("hex");
+    SESSION_STORE.set(sessionToken, { leafHash: leaf, expiresAt: Date.now() + 24 * 3600_000 });
+
     res.json({
       success: true,
       leaf_index: leafIndex,
@@ -162,6 +171,7 @@ subscribeRouter.post("/subscribe", async (req, res) => {
       subscription_id,
       api_id,
       amount: verifiedAmount,
+      session_token: sessionToken,
     });
   } catch (err) {
     console.error("subscribe error:", err);
