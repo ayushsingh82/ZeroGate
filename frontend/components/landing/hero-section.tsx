@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const words = ["exposed", "linkable", "tracked", "visible"];
+const words = ["exposed", "linkable", "tracked", "logged"];
 
 function BlurWord({ word, trigger }: { word: string; trigger: number }) {
   const letters = word.split("");
@@ -162,7 +162,7 @@ export function HeroSection() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#CFFF03] opacity-60" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#CFFF03]" />
                 </span>
-                Live on Stellar Testnet
+                Live on Stellar Testnet · ShieldedPool deployed
               </span>
             </div>
           </div>
@@ -173,7 +173,7 @@ export function HeroSection() {
             }`}
           >
             <span className="text-sm font-mono text-white/60">
-              Private 402 — prove access without revealing identity
+              x402 + ZK on Stellar — subscriber can&apos;t see merchant · merchant can&apos;t see subscriber
             </span>
           </div>
 
@@ -198,10 +198,12 @@ export function HeroSection() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            <p className="text-lg text-white/55 max-w-md leading-relaxed">
-              Pay for APIs through HTTP 402 on Stellar — amount hidden, merchant address hidden.
-              Get a ZK proof of payment. Use it as your credential forever, with no wallet,
-              no identity, no session ever linked to your calls.
+            <p className="text-lg text-white/55 max-w-lg leading-relaxed">
+              Subscribe to APIs via a ShieldedPool contract on Stellar.
+              The 402 response shows only the pool contract — subscriber never learns the merchant&apos;s address.
+              The server receives only a commitment hash — merchant never learns who subscribed.
+              Neither side learns the other. Prove access with a Groth16 ZK proof.
+              No identity. No trace.
             </p>
 
             <div className="mt-8 flex items-center gap-4">
@@ -231,8 +233,8 @@ export function HeroSection() {
         <div className="max-w-[1400px] mx-auto flex items-start gap-10 lg:gap-20">
           {[
             { value: "11,741", label: "Circom circuit constraints" },
-            { value: "BN254", label: "native Stellar host functions" },
-            { value: "<3s", label: "average proof generation time" },
+            { value: "ShieldedPool", label: "merchant never on-chain" },
+            { value: "0 wallet", label: "seen by the API server" },
           ].map((stat) => (
             <div key={stat.label} className="flex flex-col gap-2">
               <span className="text-3xl lg:text-4xl font-display text-white">{stat.value}</span>

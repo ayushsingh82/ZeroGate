@@ -6,47 +6,55 @@ import { useVisible } from "@/hooks/use-visible";
 const steps = [
   {
     number: "01",
-    title: "Pay privately via x402",
-    subtitle: "amount hidden · merchant hidden",
+    title: "Deposit to ShieldedPool",
+    subtitle: "merchant hidden · wallet stays private",
     description:
-      "Send a single USDC payment over HTTP 402 on Stellar. The amount you paid and the merchant's address are never written to the ledger — only a Poseidon commitment of your subscription is stored on-chain. Nobody watching the network can tell what you paid or who you paid.",
-    code: `// What goes on-chain (Soroban contract)
-leaf = Poseidon(secret, expiry, sub_id, merchant_commitment)
-merchant_commitment = Poseidon(merchant_addr, salt)
+      "Your USDC goes to a neutral ShieldedPool Soroban contract — never directly to the merchant. The contract stores only a Poseidon(secret, expiry) commitment hash. The merchant address never appears on the ledger. An observer sees: your wallet sent USDC to a pool contract. Nothing more.",
+    code: `// What the ShieldedPool stores on-chain:
+commitment = Poseidon(subscriber_secret, expiry)
 
-// What NEVER goes on-chain
-// ✗  payment amount
-// ✗  merchant Stellar address
-// ✗  your wallet address`,
+// What NEVER touches the ledger:
+// ✗  merchant wallet address
+// ✗  which API you subscribed to
+// ✗  your subscriber identity
+
+// Explorer shows: YourWallet → CDMJVG...GXYY (pool)`,
   },
   {
     number: "02",
-    title: "Prove payment with ZK",
-    subtitle: "in-browser · no identity revealed",
+    title: "Register blind — server sees nothing",
+    subtitle: "no wallet · no tx hash · no linkage",
     description:
-      "Your browser generates a Groth16 zero-knowledge proof that you own a valid subscription leaf in the Merkle tree — without revealing which leaf, how much you paid, or who the merchant is. The proof is the only credential you need.",
-    code: `// ZK proof proves all three at once:
-// 1. You have a valid subscription (Merkle membership)
-// 2. It hasn't expired (timestamp check)
-// 3. It's for the right merchant (commitment match)
+      "After depositing, your browser calls /subscribe with only the commitment hash — no wallet address, no transaction hash. The server is provably blind to your identity. It issues a session token tied to the commitment, not to you. Even if the server is fully compromised, it cannot reveal who subscribed.",
+    code: `// POST /subscribe — what the server receives:
+{
+  commitment: "Poseidon(secret, expiry)",  // hash only
+  leaf_index: 0,
+  subscription_id: "price-feed-...",
+  expiry: 1783123200
+}
 
-// What the proof reveals: nothing private
-publicSignals = { root, nullifier, merchant_commitment, ts }
-
-// Proof time: ~2.8s · 11,741 constraints · BN254`,
+// What the server NEVER receives:
+// ✗  wallet address
+// ✗  tx hash
+// ✗  payment amount`,
   },
   {
     number: "03",
-    title: "Access the API",
-    subtitle: "proof as key · session unlinkable",
+    title: "Call APIs — identity zero",
+    subtitle: "session token → ZK proof · fully unlinkable",
     description:
-      "Send the proof with every API call. The server verifies it against the on-chain Merkle root and spends a fresh nullifier — confirming payment without ever learning your wallet, your amount, or linking this call to any previous one.",
-    code: `// Every API call carries only the proof
+      "Every API call carries a session token derived from your commitment via HMAC — no wallet, no cookie, no session history. The server authenticates you without knowing you. In production, this upgrades to a full Groth16 proof: proving Merkle membership in the ShieldedPool without revealing which leaf you hold.",
+    code: `// Every API call — server sees only this:
 GET /api/prices
-X-Stealth402-Proof: <base64-groth16-proof>
+X-ZeroGate-Session: <commitment>:<expiry>:<hmac>
 
-// Server checks:  proof valid? ✓  nullifier unspent? ✓
-// Server never sees:  wallet address  amount  session history`,
+// Server verifies HMAC. Serves data.
+// Server logs: valid credential presented.
+// Server never logs: which wallet, which deposit, which leaf
+
+// Production path:
+X-ZeroGate-Proof: <base64-groth16>  // full ZK, no token`,
   },
 ];
 
@@ -86,7 +94,7 @@ export function HowItWorksSection() {
                 isVisible ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
               }`}
             >
-              <span className="block">Subscribe.</span>
+              <span className="block">Deposit.</span>
               <span className="block text-white/60">Prove.</span>
               <span className="block text-white/35">Access.</span>
             </h2>

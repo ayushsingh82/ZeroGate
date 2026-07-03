@@ -90,7 +90,7 @@ export function BuildSection() {
             }`}
           >
             <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-md">
-              Every layer of Stealth402 is open source. The circuit, the contracts, the middleware,
+              Every layer of ZeroGate is open source. The circuit, the contracts, the middleware,
               and the frontend — all auditable and self-hostable.
             </p>
             <div className="grid grid-cols-2 gap-6">
@@ -116,7 +116,7 @@ export function BuildSection() {
                 Read the docs →
               </a>
               <a
-                href="https://github.com/ayushsingh82/Stealth402"
+                href="https://github.com/ayushsingh82/ZeroGate"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-mono text-muted-foreground hover:text-foreground transition-colors"

@@ -73,7 +73,7 @@ export function PrizesSection() {
             className={`transition-all duration-1000 delay-100 ${isVisible ? "opacity-100" : "opacity-0"}`}
           >
             <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-              Every privacy property in Stealth402 is cryptographically enforced — not a policy
+              Every privacy property in ZeroGate is cryptographically enforced — not a policy
               promise. The{" "}
               <span className="text-[#CFFF03]">Groth16 circuit</span>{" "}
               proves all four simultaneously with a single pairing check on Stellar.

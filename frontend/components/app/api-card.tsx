@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CheckCircle, Loader2, ShieldCheck, ArrowRight, ExternalLink } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
-import { payUSDC, apiPriceToUSDC } from "@/lib/payment";
+import { depositToPool, apiPriceToUSDC, POOL_CONTRACT } from "@/lib/payment";
 
 function ApiIcon({ id }: { id: string }) {
   if (id === "weather") {
@@ -42,14 +42,15 @@ function ApiIcon({ id }: { id: string }) {
 
 export interface SubscriptionData {
   apiId: string;
-  txHash: string;
+  txHash: string;       // Soroban tx hash (to ShieldedPool, not merchant)
   amount: string;
   subscribedAt: string;
   subscriberSecret: string;
   leafIndex: number;
   merchantCommitment: string;
   subscriptionId: string;
-  sessionToken: string;   // from backend, used for playground API calls
+  sessionToken: string;
+  commitment: string;   // Poseidon(secret, expiry) — stored in pool on-chain
 }
 
 export interface Api {
@@ -78,8 +79,8 @@ type PayState = "idle" | "signing" | "submitting" | "registering" | "done" | "er
 const PAY_LABELS: Record<PayState, string> = {
   idle:        "",
   signing:     "Sign in Freighter…",
-  submitting:  "Submitting to Stellar…",
-  registering: "Verifying on-chain…",
+  submitting:  "Depositing to ShieldedPool…",
+  registering: "Issuing ZK credential…",
   done:        "",
   error:       "",
 };
@@ -99,30 +100,35 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
     if (!isConnected || !address) { await connect(); return; }
     setError(null);
 
-    // Generate subscriber secret locally — never sent to server after this call
     const subscriberSecret = randomHex(32);
     const subscriptionId = `${api.id}-${Date.now()}-${randomHex(4)}`;
+    const expiry = Math.floor(Date.now() / 1000) + 30 * 86400; // 30 days
 
     try {
-      // Step 1: Freighter signs, then submits to Stellar
+      // Step 1: deposit USDC to ShieldedPool — only commitment hash stored on-chain
+      // Merchant address never appears on-chain; amount goes into contract escrow
       setPayState("signing");
-      const { txHash, amount } = await payUSDC(
+      const { txHash, commitment, leafIndex } = await depositToPool(
         address,
         apiPriceToUSDC(api.price),
-        () => setPayState("submitting") // called after Freighter signs, before submit
+        subscriberSecret,
+        expiry,
+        () => setPayState("submitting"),
       );
 
-      // Step 2: backend verifies tx on-chain and registers Merkle leaf
+      // Step 2: server issues session token based on commitment — never sees wallet address
       setPayState("registering");
       const resp = await fetch("http://localhost:3001/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          wallet: address,
+          // No wallet, no tx_hash — server is blind to subscriber identity
           api_id: api.id,
-          tx_hash: txHash,
+          commitment,
+          leaf_index: leafIndex,
           subscriber_secret: subscriberSecret,
           subscription_id: subscriptionId,
+          expiry,
         }),
       });
 
@@ -132,7 +138,6 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
       }
 
       const data = await resp.json() as {
-        leaf_index: number;
         merchant_commitment: string;
         session_token: string;
       };
@@ -141,13 +146,14 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
       onSubscribe({
         apiId: api.id,
         txHash,
-        amount,
+        amount: api.price,
         subscribedAt: new Date().toISOString(),
         subscriberSecret,
-        leafIndex: data.leaf_index,
+        leafIndex,
         merchantCommitment: data.merchant_commitment,
         subscriptionId,
         sessionToken: data.session_token,
+        commitment,
       });
     } catch (err) {
       setPayState("error");
@@ -155,7 +161,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
       setError(
         msg.includes("declined") || msg.includes("rejected") || msg.includes("cancel")
           ? "Transaction cancelled in Freighter."
-          : msg.includes("USDC") || msg.includes("underfunded")
+          : msg.includes("USDC") || msg.includes("underfunded") || msg.includes("Insufficient")
           ? "Insufficient USDC balance. Get testnet USDC from the faucet."
           : msg
       );
@@ -200,16 +206,22 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
         {api.endpoint}
       </div>
 
+      {/* On-chain receipt — shows pool deposit, not merchant payment */}
       {isSubscribed && subscriptionData && (
-        <a
-          href={`https://stellar.expert/explorer/testnet/tx/${subscriptionData.txHash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors truncate"
-        >
-          <ExternalLink className="w-3 h-3 flex-shrink-0" />
-          {subscriptionData.txHash.slice(0, 16)}…
-        </a>
+        <div className="space-y-1">
+          <a
+            href={`https://stellar.expert/explorer/testnet/tx/${subscriptionData.txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 hover:text-emerald-300 transition-colors truncate"
+          >
+            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+            {subscriptionData.txHash.slice(0, 16)}… (ShieldedPool deposit)
+          </a>
+          <p className="text-xs text-[var(--muted-foreground)]">
+            Merchant: <span className="font-mono">{POOL_CONTRACT.slice(0, 8)}…</span> (hidden behind pool)
+          </p>
+        </div>
       )}
 
       {error && (
@@ -237,7 +249,7 @@ export function ApiCard({ api, isSubscribed, subscriptionData, isConnected, onSu
               {PAY_LABELS[payState]}
             </>
           ) : isConnected ? (
-            <>Pay {api.price} USDC · Subscribe</>
+            <>Pay {api.price} USDC · Subscribe privately</>
           ) : (
             <>Connect wallet to subscribe</>
           )}

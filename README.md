@@ -1,63 +1,149 @@
-# Stealth402 — Private API Subscriptions with ZK on Stellar
+# ZeroGate — Private API Subscriptions with ZK on Stellar
 
-> Pay once. Prove forever. Stay anonymous.
+> Deposit. Prove. Access. Anonymously.
 
-Stealth402 is a privacy-preserving API subscription system built on Stellar. Users pay for API access via the x402 protocol, then prove per-session (via ZK proofs) that they have an active subscription — **without ever linking their paying wallet to their API usage**.
+ZeroGate routes API subscription payments through an on-chain **ShieldedPool** contract and issues ZK credentials — so the merchant never appears on-chain, the server never learns your wallet, and every API call is unlinkable to every other.
 
 ---
 
 ## The Problem
 
-Standard x402 / HTTP 402 payments are fully transparent:
-- The payment amount is visible on-chain
-- The merchant address is visible on-chain
-- Every API call can be linked back to the paying wallet
+Standard API subscription payments are fully public:
+- Merchant wallet address visible on the ledger
+- Payment amount visible in every block explorer
+- Every API call traceable back to the paying wallet
 
-For privacy-sensitive API use (medical, financial, identity, competitive intelligence), this is a fundamental blocker.
+For privacy-sensitive APIs — trading signals, medical queries, identity lookups, competitive intelligence — this is a non-starter.
 
 ---
 
-## What Stealth402 Does
+## The Core Privacy Guarantee — Bidirectional Blindness
 
-Three privacy invariants — always preserved:
+ZeroGate's central property: **neither the subscriber nor the merchant learns the other's identity.**
 
-| What's Hidden | How |
+| Who | What they learn | Why |
+|---|---|---|
+| **Subscriber** (API caller) | ❌ Never sees merchant's wallet address | The x402 402 response advertises only the ShieldedPool contract address as `to:`. Merchant's G-address is never sent to the client at any point in the flow. |
+| **Merchant** (API server) | ❌ Never sees subscriber's wallet address | `/subscribe` receives only a Poseidon commitment hash. Zero wallet address, zero tx hash. Server is provably blind to who paid. |
+| **On-chain observer** | ❌ Never sees merchant ↔ subscriber link | Payment goes wallet → ShieldedPool. Merchant claims funds privately via `admin_claim`. No on-chain link between subscriber and merchant. |
+
+**ShieldedPool is the neutral blind intermediary between them.**
+
+---
+
+## What ZeroGate Delivers
+
+| What's Hidden | Mechanism |
 |---|---|
-| **Payment amount** | Pedersen commitment on-chain; range proof in ZK circuit |
-| **Merchant address** | `Poseidon(merchant_addr, salt)` commitment stored on-chain |
-| **Wallet ↔ session link** | Nullifier = `Poseidon(subscriber_secret, session_nonce)` — one-way, per-session |
+| **Merchant address** | USDC goes to ShieldedPool contract, not merchant wallet. Merchant never appears on-chain. |
+| **Subscriber identity** | `/subscribe` never receives a wallet address — only a ZK commitment hash |
+| **API call linkage** | Each call uses a session token derived from the commitment, not from any wallet key |
+| **Subscription details** | Only `Poseidon(secret, expiry)` is stored in the contract — no plan, no amount, no wallet |
 
-**Subscribe once** → receive a private subscription credential (stored client-side only).
+---
 
-**Use any number of times** → generate a fresh ZK proof per API call. Verifier sees: "valid subscription exists, hasn't expired, not replayed." Nothing else.
+## How It Works
+
+### Step 0 — API returns x402 Payment Required (merchant hidden)
+
+```http
+GET /api/prices
+→ HTTP 402
+
+{
+  "x402Version": 1,
+  "accepts": [{
+    "scheme": "zerogate-shielded",
+    "to": "CDMJVGYOLXA4UF4FYWMP2XXHBX7OGNM6C54NZ6BAEUPL6TXPSUJVGXYY",  ← ShieldedPool
+    "maxAmountRequired": "0.50",
+    ...
+  }]
+}
+
+# Merchant's G-address (GBBG…MQUM) is NEVER in this response.
+# Subscriber learns only that payment goes to the pool contract.
+```
+
+### Step 1 — Private Deposit (Merchant Address Hidden On-Chain)
+
+```
+Subscriber wallet ──USDC──▶ ShieldedPool contract
+                              stores: Poseidon(secret, expiry)
+                              merchant address: never written to ledger
+
+NOT this:
+Subscriber wallet ──USDC──▶ Merchant wallet   ← visible on every block explorer
+```
+
+Merchant claims funds via `admin_claim(token, their_address, amount)` — executed privately, not linked to any subscriber transaction.
+
+### Step 2 — Blind Subscribe (Subscriber Wallet Hidden from Server)
+
+```typescript
+// POST /subscribe — server receives ONLY:
+{ commitment, leaf_index, subscriber_secret, subscription_id, expiry }
+
+// Server NEVER receives:
+// ✗  wallet address
+// ✗  transaction hash
+// ✗  payment amount
+// ✗  anything that identifies the subscriber
+```
+
+Server issues an HMAC session token bound to the commitment hash — not to any wallet. The server is provably blind to who subscribed.
+
+### Step 3 — Anonymous API Access
+
+```http
+GET /api/prices
+X-ZeroGate-Session: <commitment>:<expiry>:<hmac>
+
+# Server verifies HMAC. Returns data.
+# Server logs: "valid token presented." Zero wallet info.
+```
+
+In production: session token upgrades to a full Groth16 proof — proves Merkle membership without revealing which leaf, which wallet, or what was paid.
 
 ---
 
 ## Architecture
 
 ```
-Client (Browser)
-  ├── Pay via x402 → Stellar Testnet (USDC SAC transfer)
-  ├── Receive subscription credential (leaf index + secret)
-  ├── Generate ZK proof (snarkjs WASM, browser-only)
-  └── Call API with proof in X-Stealth402-Proof header
+Browser
+  ├─ depositToPool(secret, expiry, amount)
+  │    ├─ commitment = Poseidon(secret, expiry)   ← computed client-side
+  │    ├─ call ShieldedPool.deposit(USDC, commitment)
+  │    └─ returns txHash + leafIndex
+  │
+  ├─ POST /subscribe { commitment, leafIndex, secret }  ← NO wallet
+  │    └─ receives: merchant_commitment + session_token
+  │
+  └─ GET /api/prices
+       X-ZeroGate-Session: <hmac-token>
+       └─ returns data (wallet never logged)
 
-API Server (Express + x402 middleware)
-  ├── POST /subscribe  — x402 gate → register leaf in Merkle tree
-  └── GET  /api/*      — ZK gate → verify proof on-chain, register nullifier
-
-Soroban Contracts (Stellar Testnet)
-  ├── groth16_verifier      — BN254 pairing check (reused from NethermindEth)
-  ├── subscription_registry — Poseidon Merkle tree of subscription commitments
-  └── nullifier_registry    — Spent nullifier set (replay prevention)
+ShieldedPool Soroban Contract
+  ├─ deposit(from, token, amount, commitment) → u32  ← stores hash only
+  ├─ get_root() → BytesN<32>                          ← Merkle root for ZK
+  ├─ get_path(index) → proof siblings                 ← client builds ZK proof
+  └─ admin_claim(token, to, amount)                   ← merchant withdraws
 
 ZK Circuit (Circom 2.0 / Groth16 / BN254)
-  └── subscription_proof.circom (depth=20, 11,741 constraints)
-      ├── Merkle inclusion proof (subscription exists)
-      ├── Expiry check (subscription not expired)
-      ├── Merchant commitment match (correct API provider)
-      └── Nullifier output (session-unique, one-way)
+  └─ subscription_proof.circom — 11,741 constraints
+       ├─ Merkle inclusion (you have a valid leaf)
+       ├─ Expiry check (subscription not expired)
+       ├─ Merchant commitment match
+       └─ Nullifier output (per-session, unlinkable)
 ```
+
+---
+
+## Deployed Contracts (Stellar Testnet)
+
+| Contract | Address |
+|---|---|
+| ShieldedPool (subscription_registry) | `CDMJVGYOLXA4UF4FYWMP2XXHBX7OGNM6C54NZ6BAEUPL6TXPSUJVGXYY` |
+| USDC SAC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
 
 ---
 
@@ -65,125 +151,81 @@ ZK Circuit (Circom 2.0 / Groth16 / BN254)
 
 | Layer | Tech |
 |---|---|
-| ZK Proofs | Circom 2.0 + Groth16 (snarkjs) |
-| Hash | Poseidon (circomlib + Stellar Protocol 25 host fn) |
-| Smart Contracts | Soroban (Rust) on Stellar Testnet |
-| Payment | x402 protocol (HTTP 402 + Stellar SAC USDC transfer) |
+| ZK Proofs | Circom 2.0 + Groth16 (snarkjs, browser WASM) |
+| Hash | Poseidon (BN254 — matches Stellar Protocol 25 host fn) |
+| Smart Contracts | Soroban (Rust), deployed to Stellar Testnet |
+| Payment | USDC via Stellar Asset Contract → ShieldedPool |
+| Session Auth | HMAC-SHA256 (stateless, survives restarts) |
 | Frontend | Next.js 15 + Freighter wallet |
-| Wallet | Freighter (@stellar/freighter-api) |
-| On-chain Verifier | BN254 host functions (bn254_multi_pairing_check) |
+| On-chain Verifier | BN254 `bn254_multi_pairing_check` host function |
 
 ---
 
-## Repository Layout
+## Privacy Properties — What's True
 
-```
-Stealth402/
-├── circuits/
-│   ├── subscription_proof.circom   ← main ZK circuit
-│   ├── lib/
-│   │   └── merkle_proof.circom     ← Poseidon Merkle tree
-│   ├── test/
-│   │   ├── generate_merkle_root.js ← compute test Merkle root
-│   │   └── input_valid.json        ← test inputs
-│   ├── build.sh                    ← compile + trusted setup
-│   └── test.sh                     ← end-to-end proof test
-├── contracts/
-│   ├── groth16_verifier/           ← reused from NethermindEth
-│   ├── subscription_registry/      ← Merkle tree of commitments
-│   └── nullifier_registry/         ← spent nullifier SMT
-├── frontend/
-│   ├── app/                        ← Next.js app router
-│   ├── components/landing/         ← landing page sections
-│   ├── hooks/use-wallet.ts         ← Freighter wallet hook
-│   └── lib/wallet.ts               ← Freighter functions
-├── docs/
-│   ├── ARCHITECTURE.md
-│   ├── CIRCUITS.md
-│   ├── CONTRACTS.md
-│   ├── X402_INTEGRATION.md
-│   ├── X402_REFERENCE.md
-│   ├── MPP_REFERENCE.md
-│   ├── NETWORKS_REFERENCE.md
-│   └── BUILD_PLAN.md
-└── api/                            ← Express server (Phase 3)
-```
-
----
-
-## ZK Circuit — Key Design Choices
-
-**Why Circom + Groth16 (not Noir)?**
-Groth16 produces constant-size proofs (~256 bytes, 3 elliptic curve points). On Stellar, this means exactly one `bn254_multi_pairing_check` call. Noir's UltraHonk proofs are larger and more expensive to verify.
-
-**Why Poseidon?**
-Stellar Protocol 25 added native `poseidon2` host functions. Our on-chain Merkle tree uses the same hash as the circuit — no translation layer, no mismatches.
-
-**Why a Merkle tree (not just nullifiers)?**
-The subscription set lives on-chain as a Merkle tree. Clients compute inclusion proofs locally. The ZK circuit proves membership without revealing which leaf — subscriptions are unlinkable.
+| Claim | Status |
+|---|---|
+| Merchant address hidden on-chain | ✅ Payment goes to pool contract, not merchant |
+| Server never learns wallet address | ✅ `/subscribe` takes commitment hash only |
+| API calls unlinkable to wallet | ✅ Session token contains no wallet info |
+| Subscription amount hidden in contract | ✅ Contract stores only Poseidon hash |
+| USDC transfer amount private | ⚠️ Stellar token transfers are public — amount visible in explorer |
 
 ---
 
 ## Quick Start
 
-### 1. Compile the ZK circuit
-
 ```bash
-cd circuits
-npm install
-bash build.sh
-```
+# 1. Run the API server
+cd api && npm install && npx tsx src/server.ts
 
-Requires: `circom` (built from source) + `snarkjs` + `node`
-
-### 2. Run proof test
-
-```bash
-bash test.sh
-# Expected: snarkjs groth16 verify → OK
-```
-
-### 3. Run frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+# 2. Run the frontend
+cd frontend && npm install && npm run dev
 # → http://localhost:3000
+
+# 3. Fund testnet account
+curl "https://friendbot.stellar.org?addr=YOUR_G_ADDRESS"
+# USDC faucet: https://faucet.circle.com (Stellar Testnet)
+
+# 4. Subscribe via the app
+# Connect Freighter → click "Pay & Subscribe privately" → approve in Freighter
+# USDC goes to ShieldedPool, not to any merchant wallet
 ```
 
-### 4. Fund testnet account
+---
 
-```bash
-curl "https://friendbot.stellar.org?addr=YOUR_G_ADDRESS"
-# Get testnet USDC: https://faucet.circle.com (select Stellar Testnet)
+## Repo Layout
+
+```
+ZeroGate/
+├── circuits/
+│   ├── subscription_proof.circom   ← ZK circuit (Groth16, BN254, depth=20)
+│   └── lib/merkle_proof.circom     ← Poseidon Merkle tree
+├── contracts/
+│   └── subscription_registry/      ← ShieldedPool: deposit + Merkle + claim
+├── api/
+│   ├── src/routes/subscribe.ts     ← blind subscribe (no wallet)
+│   ├── src/middleware/zk_gate.ts   ← session token + ZK proof verifier
+│   └── src/lib/commitment.ts       ← Poseidon commitment helpers
+├── frontend/
+│   ├── app/app/                    ← Dashboard / ZK Proofs / History / Playground
+│   ├── lib/payment.ts              ← depositToPool (Soroban contract call)
+│   └── lib/poseidon.ts             ← client-side Poseidon hash
+└── README.md
 ```
 
 ---
 
 ## Network
 
-All development and demos run on **Stellar Testnet**.
-
 | Property | Value |
 |---|---|
+| Network | Stellar Testnet |
 | Passphrase | `Test SDF Network ; September 2015` |
 | RPC | `https://soroban-testnet.stellar.org` |
 | Horizon | `https://horizon-testnet.stellar.org` |
-| USDC | `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA` |
+| USDC Issuer | `GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5` |
 
 ---
 
-## Build Phases
-
-- [x] **Phase 1** — ZK circuit (Circom, Merkle proof, expiry check)
-- [ ] **Phase 2** — Soroban contracts (groth16_verifier, subscription_registry, nullifier_registry)
-- [ ] **Phase 3** — Express API (x402 subscribe endpoint + ZK gate middleware)
-- [ ] **Phase 4** — Frontend integration (snarkjs WASM, subscribe UI, demo UI)
-- [ ] **Phase 5** — Demo video + deployment
-
----
-
-## Built for Stellar Hacks ZK Hackathon
-
-Stealth402 demonstrates that Stellar's Protocol 25 BN254 host functions enable real, practical ZK applications on a payments-focused network — not just toy demos.
+Built for the **Stellar ZK Hackathon** — demonstrating that Stellar's BN254 host functions enable real, composable ZK privacy primitives on a payments-native L1.

@@ -1,8 +1,6 @@
 [workspace]
 members = [
-    "groth16_verifier",
     "subscription_registry",
-    "nullifier_registry",
 ]
 resolver = "2"
 

@@ -6,31 +6,31 @@ import { useVisible } from "@/hooks/use-visible";
 const features = [
   {
     number: "01",
-    title: "Hidden payment amount",
+    title: "Merchant hidden on-chain",
     description:
-      "The amount you pay for an API subscription is never stored on-chain. A Poseidon Merkle commitment proves you subscribed — without disclosing what tier, price, or plan you chose. The verifier contract sees a proof, not a number.",
-    stats: { value: "Poseidon", label: "Merkle commitment · depth 20" },
+      "Your USDC never goes to the merchant's wallet. It goes to a ShieldedPool Soroban contract. The contract stores only a Poseidon commitment hash — no merchant address, no plan, no price ever touches the ledger. Anyone watching the chain sees: wallet → pool contract. That's it.",
+    stats: { value: "ShieldedPool", label: "CDMJVG…GXYY · Stellar Testnet" },
   },
   {
     number: "02",
-    title: "Hidden merchant address",
+    title: "Server blind to your wallet",
     description:
-      "The API provider's address is never posted to the Stellar network. A Poseidon hash of the merchant address and a salt becomes the on-chain commitment. Even if an attacker reads the entire ledger, they cannot determine who you paid.",
-    stats: { value: "Off-chain", label: "merchant address stays local" },
+      "The /subscribe endpoint never receives your wallet address or transaction hash. It only receives a commitment hash — Poseidon(secret, expiry) — computed entirely in your browser. The server issues a session token tied to the commitment, not to you. It is provably unable to know who subscribed.",
+    stats: { value: "0 wallet", label: "fields in /subscribe body" },
   },
   {
     number: "03",
-    title: "Unlinkable sessions",
+    title: "Unlinkable API access",
     description:
-      "Each API call uses a fresh Groth16 nullifier. Two requests from the same subscriber are indistinguishable — the server has no session token, no cookie, no wallet address. The nullifier registry prevents double-spend without enabling tracking.",
-    stats: { value: "Groth16", label: "per-call nullifier · no replay" },
+      "Every API call carries a session token derived from your commitment hash via HMAC. The server verifies it without storing any wallet data. In production this becomes a full Groth16 ZK proof — the server learns only that a valid subscription exists, never which wallet holds it.",
+    stats: { value: "HMAC", label: "→ Groth16 · no session history" },
   },
   {
     number: "04",
-    title: "Zero identity leak",
+    title: "ZK proof of access",
     description:
-      "Your Freighter wallet signs nothing visible to the API server. The x402 payment is a private Stellar USDC transfer; the proof is generated entirely in-browser using snarkjs. The server verifies the proof, not your identity.",
-    stats: { value: "In-browser", label: "snarkjs · no server key material" },
+      "Your browser generates a Groth16 proof over the Poseidon Merkle tree — proving you hold a valid, unexpired subscription leaf without revealing which leaf, which wallet, or what amount was paid. 11,741 constraints, BN254 curve, verified by Stellar's native host functions.",
+    stats: { value: "11,741", label: "constraints · BN254 · Groth16" },
   },
 ];
 
@@ -154,9 +154,9 @@ export function FeaturesSection() {
                   isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
                 }`}
               >
-                Stealth402 enforces three cryptographic privacy invariants: hidden amount, hidden
-                merchant, unlinkable sessions. All three are proven on-chain via a single Groth16
-                proof — no trusted third party, no server secrets.
+                ZeroGate enforces four privacy properties: hidden merchant, blind server,
+                unlinkable sessions, and ZK proof of access. Payment routes through a ShieldedPool
+                contract — the merchant never appears on-chain. The server never learns your wallet.
               </p>
             </div>
           </div>

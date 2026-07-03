@@ -42,12 +42,13 @@ export function CtaSection() {
                 <h2 className="text-6xl md:text-7xl lg:text-[72px] font-display tracking-tight mb-8 leading-[0.95]">
                   Private APIs,
                   <br />
-                  <span className="text-muted-foreground">proven on-chain.</span>
+                  <span className="text-muted-foreground">merchant invisible.</span>
                 </h2>
 
                 <p className="text-xl text-muted-foreground mb-12 leading-relaxed max-w-xl">
-                  Connect your Freighter wallet, subscribe to an API with a single USDC payment, and
-                  generate your first ZK proof in under three seconds — entirely in the browser.
+                  Connect Freighter, deposit USDC into the ShieldedPool, and access any API
+                  with a ZK credential — the server never learns your wallet, the chain
+                  never reveals the merchant. Entirely in the browser, on Stellar Testnet.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -67,7 +68,7 @@ export function CtaSection() {
                 </div>
 
                 <p className="text-sm text-muted-foreground mt-8 font-mono">
-                  Stellar Testnet · Open source · Circom + Groth16 + Soroban
+                  Stellar Testnet · ShieldedPool deployed · Circom + Groth16 + Soroban
                 </p>
               </div>
 

@@ -40,13 +40,13 @@ export function Navigation() {
           }`}
         >
           <a href="/" className="flex items-center gap-2.5 group">
-            <Image src="/logo-mark.svg" alt="Stealth402" width={28} height={28} />
+            <Image src="/logo-mark.svg" alt="ZeroGate" width={28} height={28} />
             <span
               className={`font-display tracking-tight transition-all duration-500 ${
                 isScrolled ? "text-xl text-foreground" : "text-2xl text-white"
               }`}
             >
-              Stealth<span className="text-[#CFFF03]">402</span>
+              Zero<span className="text-[#CFFF03]">Gate</span>
             </span>
           </a>
 

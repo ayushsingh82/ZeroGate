@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { SubscriptionData } from "@/components/app/api-card";
 
-const STORAGE_KEY = "stealth402_subs_v1";
+const STORAGE_KEY = "zerogate_subs_v1";
 
 export function useSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<Record<string, SubscriptionData>>({});

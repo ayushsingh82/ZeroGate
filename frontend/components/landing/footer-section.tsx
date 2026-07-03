@@ -14,7 +14,7 @@ const footerLinks = {
     { name: "Getting started", href: "/docs" },
     { name: "Circuit design", href: "/docs#circuit" },
     { name: "API reference", href: "/docs#api" },
-    { name: "GitHub", href: "https://github.com/ayushsingh82/Stealth402", external: true },
+    { name: "GitHub", href: "https://github.com/ayushsingh82/ZeroGate", external: true },
   ],
   Protocol: [
     { name: "x402 payment flow", href: "/docs#x402" },
@@ -25,7 +25,7 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: "GitHub", href: "https://github.com/ayushsingh82/Stealth402" },
+  { name: "GitHub", href: "https://github.com/ayushsingh82/ZeroGate" },
   { name: "Stellar Docs", href: "https://developers.stellar.org" },
 ];
 
@@ -48,9 +48,9 @@ export function FooterSection() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-12 lg:gap-8">
             <div className="col-span-2">
               <a href="/" className="inline-flex items-center gap-2.5 mb-6">
-                <Image src="/logo-mark.svg" alt="Stealth402" width={28} height={28} />
+                <Image src="/logo-mark.svg" alt="ZeroGate" width={28} height={28} />
                 <span className="text-2xl font-display text-white">
-                  Stealth<span className="text-[#CFFF03]">402</span>
+                  Zero<span className="text-[#CFFF03]">Gate</span>
                 </span>
               </a>
 
@@ -99,7 +99,7 @@ export function FooterSection() {
 
         <div className="py-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-white/30">
-            &copy; 2026 Stealth402. Open source under MIT.
+            &copy; 2026 ZeroGate. Open source under MIT.
           </p>
           <div className="flex items-center gap-6 text-sm text-white/30">
             <span className="flex items-center gap-2">

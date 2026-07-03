@@ -31,7 +31,7 @@ export function AppSidebar() {
             <circle cx="32" cy="34" r="2" fill="#CFFF03" fillOpacity="0.5"/>
           </svg>
           <p className="text-sm font-semibold text-[var(--foreground)] leading-none group-hover:text-[#CFFF03] transition-colors">
-            Stealth<span style={{ color: "#CFFF03" }}>402</span>
+            Zero<span style={{ color: "#CFFF03" }}>Gate</span>
           </p>
         </Link>
       </div>

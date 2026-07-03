@@ -6,8 +6,6 @@ pub const TREE_DEPTH: u32 = 20;
 #[derive(Clone)]
 pub enum DataKey {
     Admin,
-    VerifierContract,
-    NullifierContract,
     LeafCount,
     MerkleRoot,
     MerkleNode(u32, u32), // (level, index)

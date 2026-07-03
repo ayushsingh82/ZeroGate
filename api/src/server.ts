@@ -6,21 +6,21 @@ import { protectedRouter } from "./routes/protected";
 
 const app = express();
 
-// Allow any localhost origin (dev) and any deployed origin
+const CORS_HEADERS = ["Content-Type", "Authorization", "X-ZeroGate-Session", "X-ZeroGate-Proof"];
+
 app.use(cors({
-  origin: true,               // reflect the request origin
+  origin: true,
   methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: CORS_HEADERS,
   credentials: false,
 }));
 
-// Respond to preflight OPTIONS immediately before any route logic
-app.options("*", cors({ origin: true, credentials: false }));
+app.options("*", cors({ origin: true, credentials: false, allowedHeaders: CORS_HEADERS }));
 
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "stealth402-api" });
+  res.json({ status: "ok", service: "zerogate-api" });
 });
 
 app.use("/", subscribeRouter);
@@ -28,5 +28,5 @@ app.use("/api", protectedRouter);
 
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
-  console.log(`Stealth402 API running on :${PORT}`);
+  console.log(`ZeroGate API running on :${PORT}`);
 });
