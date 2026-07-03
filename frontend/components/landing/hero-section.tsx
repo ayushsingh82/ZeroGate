@@ -164,9 +164,6 @@ export function HeroSection() {
                 </span>
                 Live on Stellar Testnet
               </span>
-              <span className="inline-flex items-center gap-2 border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-mono text-white/60">
-                Circom · Groth16 · Soroban · x402
-              </span>
             </div>
           </div>
 
@@ -176,7 +173,7 @@ export function HeroSection() {
             }`}
           >
             <span className="text-sm font-mono text-white/60">
-              Zero-knowledge API subscriptions on Stellar
+              Private 402 — prove access without revealing identity
             </span>
           </div>
 
