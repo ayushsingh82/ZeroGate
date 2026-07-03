@@ -1,56 +1,75 @@
 "use client";
 
-import { useState } from "react";
-import { ApiCard } from "@/components/app/api-card";
+import { useState, useEffect } from "react";
+import { ApiCard, type SubscriptionData, type Api } from "@/components/app/api-card";
 import { TxHistory } from "@/components/app/tx-history";
 import { ProofGenerator } from "@/components/app/proof-generator";
 import { StatsBar } from "@/components/app/stats-bar";
 import { WalletConnect } from "@/components/app/wallet-connect";
 import { useWallet } from "@/hooks/use-wallet";
-import { ShieldCheck, LayoutGrid, Clock, Wallet } from "lucide-react";
+import { ShieldCheck, LayoutGrid, Clock, Wallet, Loader2 } from "lucide-react";
 
-const APIS = [
-  {
-    id: "weather",
-    name: "Weather Oracle",
-    description: "Real-time weather data. The provider never learns your location or query patterns.",
-    price: "$0.10",
-    period: "month",
-    endpoint: "/api/weather",
-    icon: "weather",
-    tag: "Oracle",
-    callsPerMonth: "10,000",
-  },
-  {
-    id: "price-feed",
-    name: "Price Feed",
-    description: "Crypto asset prices — BTC, ETH, XLM. Your trading queries stay completely private.",
-    price: "$0.50",
-    period: "month",
-    endpoint: "/api/prices",
-    icon: "price-feed",
-    tag: "Finance",
-    callsPerMonth: "50,000",
-  },
-  {
-    id: "ai-analysis",
-    name: "AI Analysis",
-    description: "Private AI inference. Submit queries without linking your identity to the content.",
-    price: "$1.00",
-    period: "month",
-    endpoint: "/api/analyze",
-    icon: "ai-analysis",
-    tag: "AI",
-    callsPerMonth: "1,000",
-  },
-];
+const API_BASE = "http://localhost:3001";
 
 export default function DashboardPage() {
   const { isConnected } = useWallet();
+  const [apis, setApis] = useState<Api[]>([]);
+  const [apisLoading, setApisLoading] = useState(true);
   const [activeProof, setActiveProof] = useState<string | null>(null);
-  const [subscribed, setSubscribed] = useState<string[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Record<string, SubscriptionData>>({});
 
-  // Gate: require wallet connection before showing the dashboard
+  // Fetch API list from backend — never hardcode on frontend
+  useEffect(() => {
+    fetch(`${API_BASE}/apis`)
+      .then((r) => r.json())
+      .then((data: { apis: Api[] }) => setApis(data.apis))
+      .catch(() => {
+        // Fallback if backend is offline during dev
+        setApis([
+          {
+            id: "weather",
+            name: "Weather Oracle",
+            description: "Real-time weather data. The provider never learns your location or query patterns.",
+            price: "$0.10",
+            period: "month",
+            endpoint: "/api/weather",
+            icon: "weather",
+            tag: "Oracle",
+            callsPerMonth: "10,000",
+          },
+          {
+            id: "price-feed",
+            name: "Price Feed",
+            description: "Crypto asset prices — BTC, ETH, XLM. Your trading queries stay completely private.",
+            price: "$0.50",
+            period: "month",
+            endpoint: "/api/prices",
+            icon: "price-feed",
+            tag: "Finance",
+            callsPerMonth: "50,000",
+          },
+          {
+            id: "ai-analysis",
+            name: "AI Analysis",
+            description: "Private AI inference. Submit queries without linking your identity to the content.",
+            price: "$1.00",
+            period: "month",
+            endpoint: "/api/analyze",
+            icon: "ai-analysis",
+            tag: "AI",
+            callsPerMonth: "1,000",
+          },
+        ]);
+      })
+      .finally(() => setApisLoading(false));
+  }, []);
+
+  function handleSubscribe(data: SubscriptionData) {
+    setSubscriptions((prev) => ({ ...prev, [data.apiId]: data }));
+    // Auto-open proof generator for the newly subscribed API
+    setActiveProof(data.apiId);
+  }
+
   if (!isConnected) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
@@ -84,26 +103,34 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <StatsBar subscribed={subscribed} />
+      <StatsBar subscriptions={subscriptions} />
 
-      {/* Available services */}
+      {/* Available services — loaded from backend */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <LayoutGrid className="w-4 h-4 text-[var(--muted-foreground)]" />
           <h2 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Available services</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {APIS.map((api) => (
-            <ApiCard
-              key={api.id}
-              api={api}
-              isSubscribed={subscribed.includes(api.id)}
-              isConnected={isConnected}
-              onSubscribe={() => setSubscribed((prev) => [...prev, api.id])}
-              onProve={() => setActiveProof(api.id)}
-            />
-          ))}
-        </div>
+        {apisLoading ? (
+          <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Loading services…
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {apis.map((api) => (
+              <ApiCard
+                key={api.id}
+                api={api}
+                isSubscribed={!!subscriptions[api.id]}
+                subscriptionData={subscriptions[api.id]}
+                isConnected={isConnected}
+                onSubscribe={handleSubscribe}
+                onProve={() => setActiveProof(api.id)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ZK proof of payment */}
@@ -112,22 +139,24 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 mb-4">
             <ShieldCheck className="w-4 h-4 text-[var(--muted-foreground)]" />
             <h2 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Proof of payment</h2>
-            <span className="text-xs text-[var(--muted-foreground)] font-mono">— proves subscription without revealing amount or identity</span>
+            <span className="text-xs text-[var(--muted-foreground)] font-mono">
+              — proves subscription without revealing amount or identity
+            </span>
           </div>
           <ProofGenerator
-            api={APIS.find((a) => a.id === activeProof)!}
+            api={apis.find((a) => a.id === activeProof)!}
             onClose={() => setActiveProof(null)}
           />
         </section>
       )}
 
-      {/* Subscription history */}
+      {/* Subscription history — shows real on-chain tx data */}
       <section>
         <div className="flex items-center gap-2 mb-4">
           <Clock className="w-4 h-4 text-[var(--muted-foreground)]" />
           <h2 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">Subscription history</h2>
         </div>
-        <TxHistory subscribed={subscribed} />
+        <TxHistory subscriptions={subscriptions} apis={apis} />
       </section>
     </div>
   );

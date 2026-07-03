@@ -1,28 +1,31 @@
 "use client";
 
 import { ShieldCheck, Key, Activity, Lock } from "lucide-react";
+import type { SubscriptionData } from "@/components/app/api-card";
 
 interface StatsBarProps {
-  subscribed: string[];
+  subscriptions: Record<string, SubscriptionData>;
 }
 
-export function StatsBar({ subscribed }: StatsBarProps) {
+export function StatsBar({ subscriptions }: StatsBarProps) {
+  const count = Object.keys(subscriptions).length;
+
   const stats = [
     {
       label: "Active Subscriptions",
-      value: subscribed.length.toString(),
+      value: count.toString(),
       icon: Key,
       sub: "x402 payments",
     },
     {
       label: "ZK Proofs Generated",
-      value: subscribed.length > 0 ? (subscribed.length * 3).toString() : "0",
+      value: count > 0 ? (count * 3).toString() : "0",
       icon: ShieldCheck,
       sub: "Groth16 / BN254",
     },
     {
       label: "API Calls Made",
-      value: subscribed.length > 0 ? (subscribed.length * 12).toString() : "0",
+      value: count > 0 ? (count * 12).toString() : "0",
       icon: Activity,
       sub: "all anonymous",
     },

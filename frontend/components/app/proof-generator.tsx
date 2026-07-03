@@ -84,13 +84,8 @@ export function ProofGenerator({ api, onClose }: ProofGeneratorProps) {
         <div className="grid grid-cols-3 gap-0 rounded-lg overflow-hidden border border-[var(--border)]">
           {(["generating", "proving", "calling"] as Stage[]).map((s, i) => {
             const labels = ["1. Witness", "2. Groth16 Proof", "3. API Call"];
-            const done = stage === "done" || (
-              s === "generating" && ["proving", "calling", "done"].includes(stage)
-            ) || (
-              s === "proving" && ["calling", "done"].includes(stage)
-            ) || (
-              s === "calling" && stage === "done"
-            );
+            const stageOrder: Stage[] = ["idle", "generating", "proving", "calling", "done", "error"];
+            const done = stage === "done" || stageOrder.indexOf(s) < stageOrder.indexOf(stage);
             const active = stage === s;
             return (
               <div
@@ -135,7 +130,7 @@ export function ProofGenerator({ api, onClose }: ProofGeneratorProps) {
                   <span className="text-[var(--muted-foreground)] flex-shrink-0">Session Nonce</span>
                   <span className="text-[var(--foreground)] truncate">{MOCK_SESSION_NONCE.slice(0, 18)}…</span>
                 </div>
-                {stage !== "idle" && elapsed > 0 && (
+                {elapsed > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted-foreground)]">Proof time</span>
                     <span className="text-[var(--foreground)]">{elapsed}s</span>
