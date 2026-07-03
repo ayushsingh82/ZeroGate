@@ -61,9 +61,9 @@ export default function DocsPage() {
       {/* Header */}
       <header className="border-b border-white/10 px-6 lg:px-12 py-4 flex items-center justify-between sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-md z-50">
         <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo-mark.svg" alt="Stealth402" width={26} height={26} />
+          <Image src="/logo-mark.svg" alt="ZeroGate" width={26} height={26} />
           <span className="text-xl font-semibold tracking-tight">
-            Stealth<span className="text-[#CFFF03]">402</span>
+            Zero<span className="text-[#CFFF03]">Gate</span>
           </span>
         </Link>
         <Link
@@ -85,7 +85,7 @@ export default function DocsPage() {
               Documentation
             </span>
             <h1 className="text-5xl lg:text-6xl font-display tracking-tight leading-[0.9] mb-6">
-              Stealth402 Docs
+              ZeroGate Docs
             </h1>
             <p className="text-lg text-white/50 max-w-xl leading-relaxed">
               Private 402 payments on Stellar. Pay with USDC, prove access with a ZK proof,
@@ -97,12 +97,12 @@ export default function DocsPage() {
           <section id="overview">
             <h2 className="text-3xl font-display mb-4">Overview</h2>
             <p className="text-white/60 leading-relaxed mb-4">
-              Stealth402 is a private API subscription protocol built on Stellar. It uses the HTTP 402
+              ZeroGate is a private API subscription protocol built on Stellar. It uses the HTTP 402
               Payment Required standard combined with zero-knowledge proofs to let users subscribe to
               APIs without revealing their identity, payment amount, or usage patterns.
             </p>
             <p className="text-white/60 leading-relaxed mb-6">
-              Instead of a traditional API key, Stealth402 gives you a{" "}
+              Instead of a traditional API key, ZeroGate gives you a{" "}
               <span className="text-white">ZK proof of payment</span>. The proof tells the server
               "this person has a valid subscription" — without revealing who you are, what you paid,
               or that this call is related to any previous one.
@@ -263,7 +263,7 @@ template SubscriptionProof(levels) {
             <h2 className="text-3xl font-display mb-4">x402 payment flow</h2>
             <p className="text-white/60 leading-relaxed mb-6">
               x402 is an HTTP-native payment protocol using the 402 Payment Required status code.
-              Stealth402 extends it so that both the amount and merchant identity remain off-chain.
+              ZeroGate extends it so that both the amount and merchant identity remain off-chain.
             </p>
             <div className="border border-white/10 bg-black/60 rounded-lg overflow-hidden mb-4">
               <div className="px-4 py-3 border-b border-white/10">
@@ -277,7 +277,7 @@ template SubscriptionProof(levels) {
 5. Server  ←  { leaf_index, merkle_root }
 6. Client downloads Merkle proof path for leaf_index
 7. Client generates Groth16 proof in-browser (~2.8s)
-8. Client  →  GET /api/*  X-Stealth402-Proof: <base64-proof>
+8. Client  →  GET /api/*  X-ZeroGate-Proof: <base64-proof>
 9. Server verifies proof on-chain, spends nullifier, returns response`}</pre>
             </div>
             <p className="text-sm text-white/40">
@@ -322,7 +322,7 @@ template SubscriptionProof(levels) {
               <div className="px-4 py-3 border-b border-white/10">
                 <span className="text-xs font-mono text-white/40">Proof header format</span>
               </div>
-              <pre className="p-6 text-xs font-mono text-white/60 leading-relaxed">{`X-Stealth402-Proof: <base64(JSON.stringify({ proof, publicSignals }))>
+              <pre className="p-6 text-xs font-mono text-white/60 leading-relaxed">{`X-ZeroGate-Proof: <base64(JSON.stringify({ proof, publicSignals }))>
 
 // publicSignals = [root, nullifier, merchant_commitment, timestamp, expiry]
 // proof = { pi_a: [...], pi_b: [[...],[...]], pi_c: [...] }`}</pre>
@@ -336,8 +336,8 @@ template SubscriptionProof(levels) {
               {[
                 {
                   title: "1. Clone and install",
-                  code: `git clone https://github.com/ayushsingh82/Stealth402.git
-cd Stealth402
+                  code: `git clone https://github.com/ayushsingh82/ZeroGate.git
+cd ZeroGate
 
 cd frontend && npm install && npm run dev   # http://localhost:3000
 cd ../api && npm install && cp .env.example .env && npm run dev`,
@@ -385,12 +385,12 @@ MERCHANT_SALT=<32 bytes hex>`,
               Launch App
             </Link>
             <a
-              href="https://github.com/ayushsingh82/Stealth402"
+              href="https://github.com/ayushsingh82/ZeroGate"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-white/40 hover:text-white transition-colors"
             >
-              GitHub — ayushsingh82/Stealth402 ↗
+              GitHub — ayushsingh82/ZeroGate ↗
             </a>
           </div>
 

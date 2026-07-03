@@ -20,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Stealth402 — x402 Payments with ZK Privacy on Stellar',
+  title: 'ZeroGate — x402 Payments with ZK Privacy on Stellar',
   description:
     'Pay for APIs via HTTP 402 on Stellar — amount hidden, merchant address hidden, sessions unlinkable. Prove access with a Groth16 ZK proof. Your wallet never touches the API server.',
   icons: {
