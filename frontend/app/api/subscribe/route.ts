@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "commitment and expiry are required" }, { status: 400 });
     }
 
-    if (Date.now() > expiry) {
+    if (Math.floor(Date.now() / 1000) > expiry) {
       return NextResponse.json({ error: "expiry is in the past" }, { status: 400 });
     }
 

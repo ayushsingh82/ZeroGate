@@ -16,7 +16,7 @@ export function verifySessionToken(token: string): string | null {
   const expiryStr = token.slice(sep1 + 1, sep2);
   const sig = token.slice(sep2 + 1);
   const expiry = parseInt(expiryStr, 10);
-  if (isNaN(expiry) || Date.now() > expiry) return null;
+  if (isNaN(expiry) || Math.floor(Date.now() / 1000) > expiry) return null;
   const expected = createHmac("sha256", SESSION_SECRET).update(`${commitment}:${expiry}`).digest("hex");
   if (sig.length !== expected.length) return null;
   let diff = 0;
