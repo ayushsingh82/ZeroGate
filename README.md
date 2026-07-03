@@ -42,9 +42,33 @@ ZeroGate's central property: **neither the subscriber nor the merchant learns th
 
 ---
 
+## Use Cases
+
+| Use Case | Why Privacy Matters |
+|---|---|
+| **Trading signal APIs** | Competitors can't see who's subscribing to your alpha feed |
+| **Medical / health data APIs** | Patient queries are never linked to a wallet identity |
+| **Competitive intelligence** | Subscription to a research API is invisible on-chain |
+| **Identity / KYC lookups** | Querying sensitive data without leaving a public trail |
+| **Financial analytics** | Portfolio strategy stays private — no one knows what data you're buying |
+| **Whistleblower tools** | Pay for access without revealing who you are, even to the API provider |
+
+---
+
 ## How It Works
 
-### Step 0 — API returns x402 Payment Required (merchant hidden)
+```
+1. Call API  ──▶  HTTP 402  ──▶  { to: ShieldedPool }   (merchant address never shown)
+2. Compute        commitment = Poseidon(secret, expiry)  (in browser, never sent to server)
+3. Deposit USDC ──▶  ShieldedPool.deposit(USDC, commitment)  (only hash stored on-chain)
+4. POST /subscribe  { commitment }                       (no wallet, no tx hash)
+5. Receive session token  HMAC(commitment, expiry)       (tied to hash, not to you)
+6. Call API  ──▶  X-ZeroGate-Session: <token>  ──▶  200 OK  (wallet never logged)
+```
+
+### Step 1 — x402 Payment Required (merchant address hidden)
+
+When you call any ZeroGate-protected API without a session, the server returns HTTP **402** with a `zerogate-shielded` x402 payment object. Critically, `to:` is the **ShieldedPool contract address** — never the merchant's wallet:
 
 ```http
 GET /api/prices
@@ -55,29 +79,28 @@ GET /api/prices
   "accepts": [{
     "scheme": "zerogate-shielded",
     "to": "CDMJVGYOLXA4UF4FYWMP2XXHBX7OGNM6C54NZ6BAEUPL6TXPSUJVGXYY",  ← ShieldedPool
-    "maxAmountRequired": "0.50",
-    ...
+    "maxAmountRequired": "0.50"
   }]
 }
 
-# Merchant's G-address (GBBG…MQUM) is NEVER in this response.
-# Subscriber learns only that payment goes to the pool contract.
+# Merchant's wallet (GBBG…MQUM) is NEVER in this response.
+# Subscriber learns only that payment goes to the pool — not who owns it.
 ```
 
-### Step 1 — Private Deposit (Merchant Address Hidden On-Chain)
+### Step 2 — Private Deposit (merchant hidden on-chain)
 
 ```
 Subscriber wallet ──USDC──▶ ShieldedPool contract
-                              stores: Poseidon(secret, expiry)
+                              stores only: Poseidon(secret, expiry)
                               merchant address: never written to ledger
 
-NOT this:
+NOT:
 Subscriber wallet ──USDC──▶ Merchant wallet   ← visible on every block explorer
 ```
 
-Merchant claims funds via `admin_claim(token, their_address, amount)` — executed privately, not linked to any subscriber transaction.
+Commitment is computed entirely in the browser. Merchant later calls `admin_claim(token, their_address, amount)` to withdraw — that transaction is not linked to any subscriber.
 
-### Step 2 — Blind Subscribe (Subscriber Wallet Hidden from Server)
+### Step 3 — Blind Subscribe (subscriber wallet hidden from server)
 
 ```typescript
 // POST /subscribe — server receives ONLY:
@@ -87,22 +110,22 @@ Merchant claims funds via `admin_claim(token, their_address, amount)` — execut
 // ✗  wallet address
 // ✗  transaction hash
 // ✗  payment amount
-// ✗  anything that identifies the subscriber
+// ✗  any identity information
 ```
 
-Server issues an HMAC session token bound to the commitment hash — not to any wallet. The server is provably blind to who subscribed.
+Server issues a stateless HMAC session token bound to the commitment hash — not to any wallet. It is provably unable to know who paid.
 
-### Step 3 — Anonymous API Access
+### Step 4 — Anonymous API Access
 
 ```http
 GET /api/prices
 X-ZeroGate-Session: <commitment>:<expiry>:<hmac>
 
 # Server verifies HMAC. Returns data.
-# Server logs: "valid token presented." Zero wallet info.
+# Server logs: "valid session token presented." Nothing else.
 ```
 
-In production: session token upgrades to a full Groth16 proof — proves Merkle membership without revealing which leaf, which wallet, or what was paid.
+**Production upgrade:** session token becomes a full **Groth16 ZK proof** — proves Merkle membership (you hold a valid subscription leaf) without revealing which leaf, which wallet, or what amount was paid.
 
 ---
 
